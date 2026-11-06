@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DuplicateRule xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <actionOnInsert>Allow</actionOnInsert>
+    <actionOnUpdate>Allow</actionOnUpdate>
+    <description>Reports possible duplicates of a lead against other leads and against projects (Project ID, or similar name with the same vertical, state and postal code or city). Allows the save and never blocks.</description>
+    <duplicateRuleFilter xsi:nil="true"/>
+    <duplicateRuleMatchRules>
+        <matchRuleSObjectType>Lead</matchRuleSObjectType>
+        <matchingRule>SPX_Lead_Project_Match</matchingRule>
+        <objectMapping xsi:nil="true"/>
+    </duplicateRuleMatchRules>
+    <duplicateRuleMatchRules>
+        <matchRuleSObjectType>Project__c</matchRuleSObjectType>
+        <matchingRule>SPX_Project_Match_For_Lead</matchingRule>
+        <objectMapping>
+            <inputObject>Lead</inputObject>
+            <mappingFields>
+                <inputField>CC_Project_ID__c</inputField>
+                <outputField>CC_Project_ID__c</outputField>
+            </mappingFields>
+            <mappingFields>
+                <inputField>Project_Name__c</inputField>
+                <outputField>Name</outputField>
+            </mappingFields>
+            <mappingFields>
+                <inputField>State</inputField>
+                <outputField>State__c</outputField>
+            </mappingFields>
+            <mappingFields>
+                <inputField>PostalCode</inputField>
+                <outputField>Postal_Code__c</outputField>
+            </mappingFields>
+            <mappingFields>
+                <inputField>City</inputField>
+                <outputField>City__c</outputField>
+            </mappingFields>
+            <outputObject>Project__c</outputObject>
+        </objectMapping>
+    </duplicateRuleMatchRules>
+    <isActive>false</isActive>
+    <masterLabel>SPX Lead Project Duplicate Warning</masterLabel>
+    <operationsOnInsert>Report</operationsOnInsert>
+    <operationsOnUpdate>Report</operationsOnUpdate>
+    <securityOption>BypassSharingRules</securityOption>
+    <sortOrder>2</sortOrder>
+</DuplicateRule>

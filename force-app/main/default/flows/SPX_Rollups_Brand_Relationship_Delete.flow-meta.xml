@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <description>Recalculates the global parent roll-ups when a Brand Relationship is deleted, excluding the record being deleted.</description>
+    <interviewLabel>SPX Rollups - Brand Relationship Delete {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Rollups - Brand Relationship - Delete</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Recalc_Current</targetReference></connector>
+        <filterFormula>AND(NOT({!$Permission.SPX_Bypass_Automation}), NOT(ISBLANK({!$Record.Global_Parent__c})))</filterFormula>
+        <object>Brand_Relationship__c</object>
+        <recordTriggerType>Delete</recordTriggerType>
+        <triggerType>RecordBeforeDelete</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>Recalc_Current</name>
+        <label>Recalc current</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>SPX_Recalc_Global_Rollups</flowName>
+        <inputAssignments>
+            <name>varAccountId</name>
+            <value><elementReference>$Record.Global_Parent__c</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varExcludeBrandRelId</name>
+            <value><elementReference>$Record.Id</elementReference></value>
+        </inputAssignments>
+    </subflows>
+</Flow>

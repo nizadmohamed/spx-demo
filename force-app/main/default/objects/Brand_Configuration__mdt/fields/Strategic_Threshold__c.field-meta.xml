@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Strategic_Threshold__c</fullName>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Strategic Threshold</label>
+    <description>A routed lead is a strategic project when its Est. Construction Value is over this amount.</description>
+    <precision>16</precision>
+    <scale>0</scale>
+    <required>false</required>
+    <unique>false</unique>
+    <type>Number</type>
+</CustomField>

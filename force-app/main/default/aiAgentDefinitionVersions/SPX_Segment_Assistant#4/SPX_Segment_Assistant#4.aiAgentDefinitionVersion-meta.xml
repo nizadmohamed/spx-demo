@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AiAgentDefinitionVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <articleAnswersGPTEnabled>false</articleAnswersGPTEnabled>
+    <billingMode>ActionBased</billingMode>
+    <citationsEnabled>false</citationsEnabled>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The agent instructions</description>
+        <developerName>AgentScriptInternal_agent_instructions</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Agent Instructions</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The next topic to be visited</description>
+        <developerName>AgentScriptInternal_next_topic</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Next Topic</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>This variable may also be referred to as VerifiedCustomerId</description>
+        <developerName>VerifiedCustomerId</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Verified Customer Id</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Salesforce Application Name</description>
+        <developerName>currentAppName</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Current App Name</label>
+        <visibility>External</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The API name of the current Salesforce object</description>
+        <developerName>currentObjectApiName</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Current Object Api Name</label>
+        <visibility>External</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Page type (record, list, home)</description>
+        <developerName>currentPageType</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Current Page Type</label>
+        <visibility>External</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The Salesforce ID of the current record</description>
+        <developerName>currentRecordId</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Current Record Id</label>
+        <visibility>External</visibility>
+    </conversationVariables>
+    <copilotPrimaryLanguage>en_US</copilotPrimaryLanguage>
+    <copilotSecondaryLanguages>en_GB</copilotSecondaryLanguages>
+    <genAiPlannerName>SPX_Segment_Assistant_v4</genAiPlannerName>
+    <isScriptCompatibleAgent>true</isScriptCompatibleAgent>
+    <knowledgeActionEnabled>false</knowledgeActionEnabled>
+    <knowledgeFallbackEnabled>false</knowledgeFallbackEnabled>
+    <planner>
+        <fullName>SPX_Segment_Assistant_v4</fullName>
+        <agentGraphRef>20ZgL00000BBj0H</agentGraphRef>
+        <description>Helps SPX HVAC segment reps and segment operations review ConstructConnect feed leads.</description>
+        <localTopicLinks>
+            <genAiPluginName>GeneralFAQ</genAiPluginName>
+        </localTopicLinks>
+        <localTopicLinks>
+            <genAiPluginName>agent_router</genAiPluginName>
+        </localTopicLinks>
+        <localTopicLinks>
+            <genAiPluginName>ambiguous_question</genAiPluginName>
+        </localTopicLinks>
+        <localTopicLinks>
+            <genAiPluginName>feed_review</genAiPluginName>
+        </localTopicLinks>
+        <localTopicLinks>
+            <genAiPluginName>lead_summary</genAiPluginName>
+        </localTopicLinks>
+        <localTopicLinks>
+            <genAiPluginName>notify_brand_leader</genAiPluginName>
+        </localTopicLinks>
+        <localTopicLinks>
+            <genAiPluginName>off_topic</genAiPluginName>
+        </localTopicLinks>
+        <localTopics>
+            <canEscalate>false</canEscalate>
+            <description>Answers customer questions about company products, specifications, policies, or business procedures by searching knowledge articles or other data sources.</description>
+            <genAiPluginInstructions>
+                <description>The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}
+
+You only read information. You never create, update, release or convert leads.
+Answer only from the action results. If a value is n/a, say it is not available. Do not invent history.
+Keep answers short, in bullets.</description>
+                <developerName>instruction0_179gL000002wKzl</developerName>
+                <language>en_US</language>
+                <masterLabel>instruction0_179gL000002wKzl</masterLabel>
+                <sortOrder>1</sortOrder>
+            </genAiPluginInstructions>
+            <language>en_US</language>
+            <localActionLinks>
+                <functionName>AnswerQuestionsWithKnowledge</functionName>
+            </localActionLinks>
+            <localActions>
+                <description>Answers questions about company policies and procedures, troubleshooting steps, or product information. For example: &apos;What is your return policy?&apos; &apos;How do I fix an issue?&apos; or &apos;What features does a product have?&apos;</description>
+                <invocationTarget>streamKnowledgeSearch</invocationTarget>
+                <invocationTargetType>standardInvocableAction</invocationTargetType>
+                <isConfirmationRequired>false</isConfirmationRequired>
+                <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+                <localDeveloperName>AnswerQuestionsWithKnowledge</localDeveloperName>
+                <masterLabel>Answer Questions with Knowledge</masterLabel>
+                <progressIndicatorMessage>Getting answers</progressIndicatorMessage>
+                <source>EmployeeCopilot__AnswerQuestionsWithKnowledge</source>
+            </localActions>
+            <localDeveloperName>GeneralFAQ</localDeveloperName>
+            <masterLabel>General FAQ</masterLabel>
+            <pluginType>Topic</pluginType>
+        </localTopics>
+        <localTopics>
+            <canEscalate>false</canEscalate>
+            <description>Welcome the user and determine the appropriate subagent based on user input</description>
+            <genAiPluginInstructions>
+                <description>The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}
+
+You only read information. You never create, update, release or convert leads.
+Answer only from the action results. If a value is n/a, say it is not available. Do not invent history.
+Keep answers short, in bullets.
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+                <developerName>instruction0_179gL000002wKzk</developerName>
+                <language>en_US</language>
+                <masterLabel>instruction0_179gL000002wKzk</masterLabel>
+                <sortOrder>1</sortOrder>
+            </genAiPluginInstructions>
+            <language>en_US</language>
+            <localDeveloperName>agent_router</localDeveloperName>
+            <masterLabel>Agent Router</masterLabel>
+            <pluginType>Topic</pluginType>
+        </localTopics>
+        <localTopics>
+            <canEscalate>false</canEscalate>
+            <description>Redirect conversation to relevant topics when user request is too ambiguous</description>
+            <genAiPluginInstructions>
+                <description>The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}
+
+You only read information. You never create, update, release or convert leads.
+Answer only from the action results. If a value is n/a, say it is not available. Do not invent history.
+Keep answers short, in bullets.</description>
+                <developerName>instruction0_179gL000002wKzn</developerName>
+                <language>en_US</language>
+                <masterLabel>instruction0_179gL000002wKzn</masterLabel>
+                <sortOrder>1</sortOrder>
+            </genAiPluginInstructions>
+            <language>en_US</language>
+            <localDeveloperName>ambiguous_question</localDeveloperName>
+            <masterLabel>Ambiguous Question</masterLabel>
+            <pluginType>Topic</pluginType>
+        </localTopics>
+        <localTopics>
+            <canEscalate>false</canEscalate>
+            <description>Reviews the latest ConstructConnect feed leads, identifies strategic projects, and explains what was held and why.</description>
+            <genAiPluginInstructions>
+                <description>The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}
+
+You only read information. You never create, update, release or convert leads.
+Answer only from the action results. If a value is n/a, say it is not available. Do not invent history.
+Keep answers short, in bullets.</description>
+                <developerName>instruction0_179gL000002wKzj</developerName>
+                <language>en_US</language>
+                <masterLabel>instruction0_179gL000002wKzj</masterLabel>
+                <sortOrder>1</sortOrder>
+            </genAiPluginInstructions>
+            <language>en_US</language>
+            <localActionLinks>
+                <functionName>GetFeedLeads</functionName>
+            </localActionLinks>
+            <localActions>
+                <description>Retrieves the latest ConstructConnect feed leads, including strategic flags, routing status, and held reasons.</description>
+                <invocationTarget>SPX_Agent_Get_Feed_Leads</invocationTarget>
+                <invocationTargetType>flow</invocationTargetType>
+                <isConfirmationRequired>false</isConfirmationRequired>
+                <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+                <localDeveloperName>GetFeedLeads</localDeveloperName>
+                <masterLabel>Get Feed Leads</masterLabel>
+            </localActions>
+            <localDeveloperName>feed_review</localDeveloperName>
+            <masterLabel>Feed Review</masterLabel>
+            <pluginType>Topic</pluginType>
+        </localTopics>
+        <localTopics>
+            <canEscalate>false</canEscalate>
+            <description>Summarizes a lead record so the user knows what they need before calling.</description>
+            <genAiPluginInstructions>
+                <description>The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}
+
+You only read information. You never create, update, release or convert leads.
+Answer only from the action results. If a value is n/a, say it is not available. Do not invent history.
+Keep answers short, in bullets.</description>
+                <developerName>instruction0_179gL000002wKzh</developerName>
+                <language>en_US</language>
+                <masterLabel>instruction0_179gL000002wKzh</masterLabel>
+                <sortOrder>1</sortOrder>
+            </genAiPluginInstructions>
+            <language>en_US</language>
+            <localActionLinks>
+                <functionName>SummarizeLead</functionName>
+            </localActionLinks>
+            <localActions>
+                <description>Summarizes a lead record using the SPX Lead Summary prompt template.</description>
+                <invocationTarget>SPX_Lead_Summary</invocationTarget>
+                <invocationTargetType>generatePromptResponse</invocationTargetType>
+                <isConfirmationRequired>false</isConfirmationRequired>
+                <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+                <localDeveloperName>SummarizeLead</localDeveloperName>
+                <masterLabel>Summarize Lead</masterLabel>
+            </localActions>
+            <localDeveloperName>lead_summary</localDeveloperName>
+            <masterLabel>Lead Summary</masterLabel>
+            <pluginType>Topic</pluginType>
+        </localTopics>
+        <localTopics>
+            <canEscalate>false</canEscalate>
+            <description>Sends an in-app notification to a brand sales leader (Ingénia, Cooling, Patterson-Kelley or TAMCO) about a named project. Use when the user asks to notify, tell, alert or flag a brand leader about a project. Always asks the user to confirm first.</description>
+            <genAiPluginInstructions>
+                <description>The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}
+
+You only read information. You never create, update, release or convert leads.
+Answer only from the action results. If a value is n/a, say it is not available. Do not invent history.
+Keep answers short, in bullets.</description>
+                <developerName>instruction0_179gL000002wKzi</developerName>
+                <language>en_US</language>
+                <masterLabel>instruction0_179gL000002wKzi</masterLabel>
+                <sortOrder>1</sortOrder>
+            </genAiPluginInstructions>
+            <language>en_US</language>
+            <localActionLinks>
+                <functionName>NotifyBrandLeader</functionName>
+            </localActionLinks>
+            <localActions>
+                <description>Notifies a brand leader about a specific project.</description>
+                <invocationTarget>SPX_Agent_Notify_Brand_Leader</invocationTarget>
+                <invocationTargetType>flow</invocationTargetType>
+                <isConfirmationRequired>true</isConfirmationRequired>
+                <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+                <localDeveloperName>NotifyBrandLeader</localDeveloperName>
+                <masterLabel>Notify Brand Leader</masterLabel>
+            </localActions>
+            <localDeveloperName>notify_brand_leader</localDeveloperName>
+            <masterLabel>Notify Brand Leader</masterLabel>
+            <pluginType>Topic</pluginType>
+        </localTopics>
+        <localTopics>
+            <canEscalate>false</canEscalate>
+            <description>Redirect conversation to relevant topics when user request goes off-topic</description>
+            <genAiPluginInstructions>
+                <description>The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}
+
+You only read information. You never create, update, release or convert leads.
+Answer only from the action results. If a value is n/a, say it is not available. Do not invent history.
+Keep answers short, in bullets.</description>
+                <developerName>instruction0_179gL000002wKzm</developerName>
+                <language>en_US</language>
+                <masterLabel>instruction0_179gL000002wKzm</masterLabel>
+                <sortOrder>1</sortOrder>
+            </genAiPluginInstructions>
+            <language>en_US</language>
+            <localDeveloperName>off_topic</localDeveloperName>
+            <masterLabel>Off Topic</masterLabel>
+            <pluginType>Topic</pluginType>
+        </localTopics>
+        <masterLabel>SPX Segment Assistant</masterLabel>
+        <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+    </planner>
+    <smallTalkEnabled>false</smallTalkEnabled>
+    <staticPromptsEnabled>false</staticPromptsEnabled>
+    <status>Inactive</status>
+    <stopRecPrompts>false</stopRecPrompts>
+    <surfacesEnabled>false</surfacesEnabled>
+    <toneType>Casual</toneType>
+    <version>4</version>
+    <welcomeMessage>Hi, I&apos;m the SPX Segment Assistant. Try one of these:
+- Summarize this lead
+- Summarize the latest feed
+- Which new projects are strategic?
+- What was held, and why?
+- Notify the TAMCO brand leader about a project</welcomeMessage>
+</AiAgentDefinitionVersion>

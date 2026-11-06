@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Project_Strategic__c</fullName>
+    <description>Whether the related project is a strategic project.</description>
+    <externalId>false</externalId>
+    <formula>Project__r.Strategic_Project__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Project Strategic</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

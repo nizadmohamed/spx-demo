@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DuplicateRule xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <actionOnInsert>Allow</actionOnInsert>
+    <actionOnUpdate>Allow</actionOnUpdate>
+    <alertText>Possible duplicate account. Review in Potential Duplicates.</alertText>
+    <description>ERP customer: possible match</description>
+    <duplicateRuleFilter>
+        <booleanFilter>1</booleanFilter>
+        <duplicateRuleFilterItems>
+            <field>AccountSource</field>
+            <operation>equals</operation>
+            <value>Patterson-Kelley ERP, QTC, Ingénia ERP, TAMCO ERP</value>
+            <sortOrder>1</sortOrder>
+            <table>Account</table>
+        </duplicateRuleFilterItems>
+    </duplicateRuleFilter>
+    <duplicateRuleMatchRules>
+        <matchRuleSObjectType>Account</matchRuleSObjectType>
+        <matchingRule>ERP_Possible_Match</matchingRule>
+        <objectMapping xsi:nil="true"/>
+    </duplicateRuleMatchRules>
+    <isActive>true</isActive>
+    <masterLabel>ERP customer: possible match</masterLabel>
+    <operationsOnInsert>Alert</operationsOnInsert>
+    <operationsOnInsert>Report</operationsOnInsert>
+    <operationsOnUpdate>Alert</operationsOnUpdate>
+    <securityOption>BypassSharingRules</securityOption>
+    <sortOrder>3</sortOrder>
+</DuplicateRule>

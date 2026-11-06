@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Brand__c</fullName>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <description>Brand value exactly as on the Opportunity Brand field. Leave blank for the default rows used when a brand has no rows of its own.</description>
+    <label>Brand</label>
+    <length>50</length>
+    <required>false</required>
+    <unique>false</unique>
+    <type>Text</type>
+</CustomField>

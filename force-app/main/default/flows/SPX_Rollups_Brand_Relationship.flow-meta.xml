@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <decisions>
+        <name>Prior_Check</name>
+        <label>Prior Check</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Unchanged</defaultConnectorLabel>
+        <rules>
+            <name>Prior_Parent_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>fPriorChanged</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue><booleanValue>true</booleanValue></rightValue>
+            </conditions>
+            <connector><targetReference>Recalc_Prior</targetReference></connector>
+            <label>Global Parent changed</label>
+        </rules>
+    </decisions>
+    <description>Recalculates the global parent roll-ups when a Brand Relationship is created or changed. Also recalculates the previous global parent when the record moves.</description>
+    <formulas>
+        <name>fPriorChanged</name>
+        <dataType>Boolean</dataType>
+        <expression>AND(NOT(ISNEW()), ISCHANGED({!$Record.Global_Parent__c}), NOT(ISBLANK({!$Record__Prior.Global_Parent__c})))</expression>
+    </formulas>
+    <interviewLabel>SPX Rollups - Brand Relationship {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Rollups - Brand Relationship</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Recalc_Current</targetReference></connector>
+        <filterFormula>AND(NOT({!$Permission.SPX_Bypass_Automation}), NOT(ISBLANK({!$Record.Global_Parent__c})))</filterFormula>
+        <object>Brand_Relationship__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>Recalc_Current</name>
+        <label>Recalc current</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Prior_Check</targetReference></connector>
+        <flowName>SPX_Recalc_Global_Rollups</flowName>
+        <inputAssignments>
+            <name>varAccountId</name>
+            <value><elementReference>$Record.Global_Parent__c</elementReference></value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Recalc_Prior</name>
+        <label>Recalc previous</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>SPX_Recalc_Global_Rollups</flowName>
+        <inputAssignments>
+            <name>varAccountId</name>
+            <value><elementReference>$Record__Prior.Global_Parent__c</elementReference></value>
+        </inputAssignments>
+    </subflows>
+</Flow>

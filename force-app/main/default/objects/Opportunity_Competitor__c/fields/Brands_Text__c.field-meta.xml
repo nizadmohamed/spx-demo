@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Brands_Text__c</fullName>
+    <description>Brand selections as comma-separated text for list views and related lists.</description>
+    <formula>IF(ISBLANK(Brand__c), &quot;&quot;, LEFT((IF(INCLUDES(Brand__c, &quot;Cooling&quot;), &quot;Cooling, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Ingénia&quot;), &quot;Ingénia, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Patterson-Kelley&quot;), &quot;Patterson-Kelley, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;TAMCO&quot;), &quot;TAMCO, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Marley&quot;), &quot;Marley, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Strobic&quot;), &quot;Strobic, &quot;, &quot;&quot;)), LEN((IF(INCLUDES(Brand__c, &quot;Cooling&quot;), &quot;Cooling, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Ingénia&quot;), &quot;Ingénia, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Patterson-Kelley&quot;), &quot;Patterson-Kelley, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;TAMCO&quot;), &quot;TAMCO, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Marley&quot;), &quot;Marley, &quot;, &quot;&quot;) &amp; IF(INCLUDES(Brand__c, &quot;Strobic&quot;), &quot;Strobic, &quot;, &quot;&quot;))) - 2))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Brands</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

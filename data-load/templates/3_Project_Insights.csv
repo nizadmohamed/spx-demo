@@ -1,0 +1,2 @@
+Project__r.CC_Project_ID__c,Opportunity__r.External_ID__c,Name,Brand__c,Insight_Type__c,Project_Intelligence_Type__c,Share_with_Project__c,Detailed_Notes__c
+CC-DEMO-0001,,Spec calls for two-cell cooling tower,Cooling,Project Intelligence,Channel Conflict,true,Engineer confirmed basis of design.

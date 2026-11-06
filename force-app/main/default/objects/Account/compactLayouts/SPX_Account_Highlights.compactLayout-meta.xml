@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SPX_Account_Highlights</fullName>
+    <fields>Name</fields>
+    <fields>AccountNumber</fields>
+    <fields>Account_Role__c</fields>
+    <fields>Tier__c</fields>
+    <fields>OwnerId</fields>
+    <fields>Phone</fields>
+    <fields>BillingAddress</fields>
+    <label>SPX Account Highlights</label>
+</CompactLayout>

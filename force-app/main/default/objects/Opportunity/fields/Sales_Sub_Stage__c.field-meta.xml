@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sales_Sub_Stage__c</fullName>
+    <description>Sub-stage within the sales stage. Dependent on Stage.</description>
+    <label>Sales Sub-Stage</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>StageName</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Specification Development</fullName>
+                <default>false</default>
+                <label>Specification Development</label>
+            </value>
+            <value>
+                <fullName>Technical Evaluation</fullName>
+                <default>false</default>
+                <label>Technical Evaluation</label>
+            </value>
+            <value>
+                <fullName>Opportunity Identification</fullName>
+                <default>false</default>
+                <label>Opportunity Identification</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>1.0 Prospect and Market ID</controllingFieldValue>
+            <valueName>Opportunity Identification</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>3.0 Spec and Influence</controllingFieldValue>
+            <valueName>Specification Development</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>2.0 Needs Analysis and Qualify</controllingFieldValue>
+            <controllingFieldValue>4.0 Solution and Proposal</controllingFieldValue>
+            <valueName>Technical Evaluation</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

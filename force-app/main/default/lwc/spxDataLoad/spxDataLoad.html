@@ -1,0 +1,65 @@
+<template>
+    <lightning-card title="SPX Data Load" icon-name="standard:data_integration_hub">
+        <div slot="actions">
+            <lightning-button variant="neutral" label="Clear" onclick={handleClear} class="slds-m-right_x-small"></lightning-button>
+            <lightning-button variant="brand" label={loadLabel} onclick={handleLoad}
+                disabled={loadDisabled} icon-name="utility:upload"></lightning-button>
+        </div>
+        <div class="slds-p-horizontal_medium">
+            <p class="slds-text-color_weak slds-m-bottom_small">
+                Choose a CSV for any object, tick the ones to load and click the button. Objects load in dependency
+                order: Projects, Leads, Stakeholders, Insights, Competitors. Demo simulation only.
+            </p>
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <template for:each={cards} for:item="c">
+                    <div key={c.key} class="slds-col slds-size_1-of-1 slds-large-size_1-of-2 slds-m-bottom_medium">
+                        <article class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <div class="slds-media slds-media_center slds-has-flexi-truncate">
+                                    <lightning-input type="checkbox" checked={c.selected} data-key={c.key}
+                                        onchange={handleSelect} label={c.label} variant="label-hidden"></lightning-input>
+                                    <div class="slds-media__body slds-m-left_small">
+                                        <h3 class="slds-text-heading_small">{c.label}</h3>
+                                        <p class="slds-text-color_weak">{c.description}</p>
+                                    </div>
+                                </div>
+                                <lightning-button variant="base" label="Download template" data-key={c.key}
+                                    onclick={handleTemplate} icon-name="utility:download"></lightning-button>
+                            </div>
+                            <div class="slds-card__body slds-card__body_inner">
+                                <lightning-input type="file" label="CSV file" accept=".csv" data-key={c.key}
+                                    onchange={handleFile} variant="label-hidden"></lightning-input>
+                                <template lwc:if={c.fileName}>
+                                    <p class="slds-m-top_x-small">{c.fileName} ({c.rowCount} rows)</p>
+                                </template>
+                                <template lwc:if={c.result}>
+                                    <div class="slds-m-top_small">
+                                        <lightning-badge label={c.createdLabel} class="slds-theme_success"></lightning-badge>
+                                        <lightning-badge label={c.updatedLabel} class="slds-m-left_x-small"></lightning-badge>
+                                        <lightning-badge label={c.failedLabel} class={c.failedClass}></lightning-badge>
+                                    </div>
+                                    <p class="slds-text-color_error slds-m-top_x-small">{c.fatalError}</p>
+                                    <template lwc:if={c.hasResultFiles}>
+                                        <div class="slds-m-top_x-small">
+                                            <lightning-button variant="base" label={c.successFileLabel} data-key={c.key} data-kind="success"
+                                                onclick={handleResultFile} disabled={c.successDisabled} icon-name="utility:success"></lightning-button>
+                                            <lightning-button variant="base" label={c.errorFileLabel} data-key={c.key} data-kind="error"
+                                                onclick={handleResultFile} disabled={c.errorDisabled} icon-name="utility:error"
+                                                class="slds-m-left_small"></lightning-button>
+                                        </div>
+                                    </template>
+                                    <template for:each={c.errorRows} for:item="e">
+                                        <p key={e.key} class="slds-text-color_error slds-text-body_small">{e.text}</p>
+                                    </template>
+                                </template>
+                            </div>
+                        </article>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

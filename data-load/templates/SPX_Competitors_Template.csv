@@ -1,0 +1,2 @@
+Opportunity__r.External_ID__c,Project__r.CC_Project_ID__c,Competitor_Account__r.External_ID__c,Referenced_in_Spec__c,Strengths__c,Weaknesses__c
+,CC-DEMO-0001,Account.010,FALSE,Local presence,Longer lead times

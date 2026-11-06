@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <assignments>
+        <name>Set_Vars</name>
+        <label>Set Vars</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vPositive</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>$Record.Positive_Brand_Relationships__c</elementReference></value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vNeutral</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>$Record.Neutral_Brand_Relationships__c</elementReference></value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vNegative</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>$Record.Negative_Brand_Relationships__c</elementReference></value>
+        </assignmentItems>
+        <connector><targetReference>Update_Stakeholders</targetReference></connector>
+    </assignments>
+    <description>When an Account's brand relationship fields change, refreshes the read-only copies on that Account's Project Stakeholders.</description>
+    <formulas>
+        <name>fPositive</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!vPositive}), "", SUBSTITUTE({!vPositive}, ";", ", "))</expression>
+    </formulas>
+    <formulas>
+        <name>fNeutral</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!vNeutral}), "", SUBSTITUTE({!vNeutral}, ";", ", "))</expression>
+    </formulas>
+    <formulas>
+        <name>fNegative</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!vNegative}), "", SUBSTITUTE({!vNegative}, ";", ", "))</expression>
+    </formulas>
+    <interviewLabel>SPX Account Brand Relationships to Stakeholders {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Account Brand Relationships to Stakeholders</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Stakeholders</name>
+        <label>Update Stakeholders</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Account__c</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.Id</elementReference></value>
+        </filters>
+        <inputAssignments>
+            <field>Positive_Brand_Rel_Text__c</field>
+            <value><elementReference>fPositive</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Neutral_Brand_Rel_Text__c</field>
+            <value><elementReference>fNeutral</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Negative_Brand_Rel_Text__c</field>
+            <value><elementReference>fNegative</elementReference></value>
+        </inputAssignments>
+        <object>Project_Relationship__c</object>
+    </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Set_Vars</targetReference></connector>
+        <filterFormula>AND(NOT({!$Permission.SPX_Bypass_Automation}), OR(ISCHANGED({!$Record.Positive_Brand_Relationships__c}), ISCHANGED({!$Record.Neutral_Brand_Relationships__c}), ISCHANGED({!$Record.Negative_Brand_Relationships__c})))</filterFormula>
+        <object>Account</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <variables>
+        <name>vPositive</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vNeutral</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vNegative</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <status>Active</status>
+</Flow>

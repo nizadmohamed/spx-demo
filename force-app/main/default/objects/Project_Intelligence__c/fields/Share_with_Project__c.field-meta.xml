@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Share_with_Project__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When checked, the insight is shared as a record on the Project under Project Insights.</description>
+    <inlineHelpText>Check this box if you want to share this insight with all project members</inlineHelpText>
+    <label>Share with Project</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

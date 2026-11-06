@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Trigger_Event__c</fullName>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <description>On Create, or an exact Opportunity stage name (for example 3.0 Spec and Influence) to create the task when the opportunity moves to that stage.</description>
+    <label>Trigger Event</label>
+    <length>80</length>
+    <required>false</required>
+    <unique>false</unique>
+    <type>Text</type>
+</CustomField>

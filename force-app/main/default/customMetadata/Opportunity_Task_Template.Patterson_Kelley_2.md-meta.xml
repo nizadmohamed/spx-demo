@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Patterson Kelley 2</label>
+    <protected>false</protected>
+    <values>
+        <field>Brand__c</field>
+        <value xsi:type="xsd:string">Patterson-Kelley</value>
+    </values>
+    <values>
+        <field>Trigger_Event__c</field>
+        <value xsi:type="xsd:string">On Create</value>
+    </values>
+    <values>
+        <field>Sequence__c</field>
+        <value xsi:type="xsd:double">2</value>
+    </values>
+    <values>
+        <field>Subject__c</field>
+        <value xsi:type="xsd:string">Patterson-Kelley: Check efficiency and emissions requirements in the specification</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Auto-created from the Opportunity Task Template (Patterson Kelley, task 2). Edit the template in Custom Metadata to change it.</value>
+    </values>
+    <values>
+        <field>Days_Until_Due__c</field>
+        <value xsi:type="xsd:double">5</value>
+    </values>
+    <values>
+        <field>Priority__c</field>
+        <value xsi:type="xsd:string">Normal</value>
+    </values>
+    <values>
+        <field>Assign_To__c</field>
+        <value xsi:type="xsd:string">Specific User</value>
+    </values>
+    <values>
+        <field>Specific_User_Alias__c</field>
+        <value xsi:type="xsd:string">jsengr</value>
+    </values>
+    <values>
+        <field>Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+</CustomMetadata>

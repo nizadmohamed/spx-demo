@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Market</masterLabel>
+    <sorted>false</sorted>
+    <customValue>
+        <fullName>Healthcare</fullName>
+        <default>false</default>
+        <label>Healthcare</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Education</fullName>
+        <default>false</default>
+        <label>Education</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Multifamily</fullName>
+        <default>false</default>
+        <label>Multifamily</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Data Center</fullName>
+        <default>false</default>
+        <label>Data Center</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+        <label>Other</label>
+        <isActive>true</isActive>
+    </customValue>
+</GlobalValueSet>

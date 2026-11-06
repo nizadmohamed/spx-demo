@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Project Phase</masterLabel>
+    <sorted>false</sorted>
+    <customValue>
+        <fullName>Planning</fullName>
+        <default>false</default>
+        <label>Planning</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Schematic Design</fullName>
+        <default>false</default>
+        <label>Schematic Design</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Design Development</fullName>
+        <default>false</default>
+        <label>Design Development</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Construction Documents</fullName>
+        <default>false</default>
+        <label>Construction Documents</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Bid</fullName>
+        <default>false</default>
+        <label>Bid</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Awarded</fullName>
+        <default>false</default>
+        <label>Awarded</label>
+        <isActive>true</isActive>
+    </customValue>
+</GlobalValueSet>

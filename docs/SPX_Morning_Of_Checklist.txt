@@ -1,0 +1,58 @@
+SPX DEMO - MORNING-OF CHECKLIST (run 2 hours before the session)
+=================================================================
+Org: spx-demo   (https://ac1792035792112.my.salesforce.com)
+Run commands from C:\dev\spx-demo in PowerShell. NEVER release the feed in front of the audience.
+
+0. BEFORE ANYTHING: make sure each presenter can log in.
+   Persona passwords were rotated. In Setup > Users, open the user > "Login" (as admin) or reset the password.
+   Reset emails go to fictional addresses, so use Login As or set a password in Setup.
+
+1. RELEASE THE FEED (sets all 12 Staged feed leads to New so results are pre-staged)
+   powershell -File docs\scripts\release_feed.ps1
+   Expected output: "Released 12 feed leads."
+
+2. REFRESH THE HVAC SEGMENT DASHBOARD
+   MANUAL: log in as pnataraj > Dashboards > HVAC segment > Refresh.
+   Open pipeline must be non-zero. Brand opportunity stage funnel shows the golden stages (1.0 to 4.0 with the loaded data).
+
+3. LOG IN TO EVERY PERSONA (one browser profile each) AND CONFIRM THE HOME PAGE LOADS
+   dreyes   (Dana)    Steps 1, 4, 5     Home = HVAC Home - RSM (4 components)
+   mhill    (Marcus)  Step 4            Home = HVAC Home - Brand Sales Leader (3 components)
+   pnataraj (Priya)   Steps 2,3,4,5,7   Home = HVAC Home - Segment (4 components)
+   sokafor  (Sam)     Steps 1, 2, 6
+   tbrennan (Tom)     Step 6 (Cooling regression)
+   kalvarez (Kim)     Step 6 (Chicago Fan)
+
+4. VERIFY LAKEMONT EAST TOWER - INGENIA (Amount 3,350,000, no products, no quotes)
+   sf data query -o spx-demo -q "SELECT Amount, SyncedQuoteId, Pricebook2.Name FROM Opportunity WHERE External_ID__c='O-ET-ING'"
+   sf data query -o spx-demo -q "SELECT COUNT() FROM OpportunityLineItem WHERE Opportunity.External_ID__c='O-ET-ING'"
+   sf data query -o spx-demo -q "SELECT COUNT() FROM Quote WHERE Opportunity.External_ID__c='O-ET-ING'"
+   Expected: Amount 3350000, SyncedQuoteId empty, price book Ingenia 2026 List (USD), products 0, quotes 0.
+   If not: powershell -File docs\scripts\reset_step5.ps1
+
+5. VERIFY THE FEED WAS RELEASED
+   sf data query -o spx-demo -q "SELECT Status, COUNT(Id) FROM Lead WHERE LeadSource='ConstructConnect' GROUP BY Status"
+   Expected: New = 5 (Westfield x3, Buckeye Cooling and TAMCO), Held = 7. Nothing left in Staged.
+   sf data query -o spx-demo -q "SELECT Name, Strategic_Project__c FROM Project__c WHERE Name LIKE 'Westfield%'"
+   Expected: one Westfield project, strategic = true.
+
+6. STRATEGIC PROJECTS LIST VIEW
+   MANUAL: as pnataraj, open Projects > Strategic Projects. Lakemont East Tower shows
+   Rep Conflict = checked, Brands Engaged = 3, BOD Secured = "2 of 3"   (the workbook data gives 2 of 3, not 1 of 3).
+
+7. CHICAGO FAN IS STILL INACTIVE
+   sf data query -o spx-demo -q "SELECT DeveloperName, Live__c FROM Brand_Configuration__mdt WHERE DeveloperName='Cincinnati_Fan'"          (Live__c = false)
+   sf data query -o spx-demo -t -q "SELECT ValidationName, Active FROM ValidationRule WHERE ValidationName='CF_Fan_Selection_Before_Spec'"  (Active = false)
+   sf data query -o spx-demo -q "SELECT COUNT() FROM PermissionSetAssignment WHERE PermissionSet.Name='SPX_Cincinnati_Fan'"                 (0)
+   sf data query -o spx-demo -t -q "SELECT VersionNumber, Status FROM Flow WHERE Definition.DeveloperName='SPX_Opportunity_Participation' ORDER BY VersionNumber"   (v3 Active, v4 Draft)
+   MANUAL: Setup > Picklist Value Sets > Brand: "Chicago Fan" is Inactive.
+
+8. SCENARIO 2 IS IN ITS STARTING STATE
+   sf data query -o spx-demo -q "SELECT COUNT() FROM DuplicateRecordSet"        (at least 1)
+   If A-ERP-4417 was merged in a previous run: powershell -File docs\scripts\reset_step2.ps1
+
+AFTER A RUN: reset in this order
+   Scenario 1: powershell -File docs\scripts\reset_feed.ps1      (deletes Westfield project, opp, Rachel Tran; puts feed leads back to Staged)
+   Scenario 2: powershell -File docs\scripts\reset_step2.ps1     (recreates ARDENT BLDRS INC with its Duplicate Record Set)
+   Scenario 5: powershell -File docs\scripts\reset_step5.ps1     (stop sync, delete quote and products, Amount 3,350,000)
+   Scenario 6: follow the reverse steps on the quick reference card.

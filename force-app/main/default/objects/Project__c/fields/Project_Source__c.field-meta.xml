@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Project_Source__c</fullName>
+    <label>Project Source</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>true</sorted>
+            <value>
+                <fullName>ConstructConnect</fullName>
+                <default>false</default>
+                <label>ConstructConnect</label>
+            </value>
+            <value>
+                <fullName>Influencer</fullName>
+                <default>false</default>
+                <label>Influencer</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+            <value>
+                <fullName>Rep Entered</fullName>
+                <default>false</default>
+                <label>Rep Entered</label>
+            </value>
+            <value>
+                <fullName>Rep Firm</fullName>
+                <default>false</default>
+                <label>Rep Firm</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

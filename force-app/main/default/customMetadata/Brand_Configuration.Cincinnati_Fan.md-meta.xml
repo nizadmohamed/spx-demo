@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Chicago Fan</label>
+    <protected>false</protected>
+    <values>
+        <field>BU__c</field>
+        <value xsi:type="xsd:string">EAM</value>
+    </values>
+    <values>
+        <field>Brand_Value__c</field>
+        <value xsi:type="xsd:string">Chicago Fan</value>
+    </values>
+    <values>
+        <field>Target_Verticals__c</field>
+        <value xsi:type="xsd:string">Data Center,Healthcare,Other</value>
+    </values>
+    <values>
+        <field>Routing_Threshold__c</field>
+        <value xsi:type="xsd:double">10000000</value>
+    </values>
+    <values>
+        <field>Sends_to_QTC__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Default_Currency__c</field>
+        <value xsi:type="xsd:string">USD</value>
+    </values>
+    <values>
+        <field>Live__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Earliest_Routing_Phase__c</field>
+        <value xsi:type="xsd:string">Schematic Design</value>
+    </values>
+    <values>
+        <field>Strategic_Threshold__c</field>
+        <value xsi:type="xsd:double">100000000</value>
+    </values>
+</CustomMetadata>

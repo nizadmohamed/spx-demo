@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomNotificationType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customNotifTypeName>New strategic project in your territory</customNotifTypeName>
+    <description>Sent when the intake process creates leads for a strategic project.</description>
+    <desktop>true</desktop>
+    <masterLabel>New strategic project in your territory</masterLabel>
+    <mobile>true</mobile>
+    <slack>false</slack>
+</CustomNotificationType>

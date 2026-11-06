@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Patterson-Kelley Healthcare</label>
+    <protected>false</protected>
+    <values>
+        <field>Brand_Value__c</field>
+        <value xsi:type="xsd:string">Patterson-Kelley</value>
+    </values>
+    <values>
+        <field>Vertical_Value__c</field>
+        <value xsi:type="xsd:string">Healthcare</value>
+    </values>
+    <values>
+        <field>Calculation_Type__c</field>
+        <value xsi:type="xsd:string">HEATING_MBH</value>
+    </values>
+    <values>
+        <field>Basis__c</field>
+        <value xsi:type="xsd:string">Heating MBh per sq ft × redundancy × $ per MBh</value>
+    </values>
+    <values>
+        <field>Source__c</field>
+        <value xsi:type="xsd:string">Estimate: INOVA tower heating load; boiler pricing to confirm with Patterson-Kelley. Not calculated: no $/sq ft basis in the workbook</value>
+    </values>
+    <values>
+        <field>Factor_1__c</field>
+        <value xsi:type="xsd:double">19.7</value>
+    </values>
+    <values>
+        <field>Factor_2__c</field>
+        <value xsi:type="xsd:double">1.33</value>
+    </values>
+    <values>
+        <field>Factor_3__c</field>
+        <value xsi:type="xsd:double">49</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <baseObject>Project__c</baseObject>
+    <category>other</category>
+    <deployed>true</deployed>
+    <description>Projects that have at least one Project Intelligence record, one row per record. Projects without any record are left out.</description>
+    <join>
+        <outerJoin>false</outerJoin>
+        <relationship>Project_Intelligence_Records__r</relationship>
+    </join>
+    <label>Projects with Project Intelligence</label>
+    <sections>
+        <columns><checkedByDefault>true</checkedByDefault><field>Name</field><table>Project__c</table></columns>
+        <columns><checkedByDefault>false</checkedByDefault><field>Strategic_Project__c</field><table>Project__c</table></columns>
+        <columns><checkedByDefault>false</checkedByDefault><field>Strategic_Project_Text__c</field><table>Project__c</table></columns>
+        <columns><checkedByDefault>false</checkedByDefault><field>Vertical__c</field><table>Project__c</table></columns>
+        <columns><checkedByDefault>true</checkedByDefault><field>Name</field><table>Project__c.Project_Intelligence_Records__r</table></columns>
+        <columns><checkedByDefault>true</checkedByDefault><field>Brand__c</field><table>Project__c.Project_Intelligence_Records__r</table></columns>
+        <columns><checkedByDefault>true</checkedByDefault><field>Project_Intelligence_Type__c</field><table>Project__c.Project_Intelligence_Records__r</table></columns>
+        <columns><checkedByDefault>true</checkedByDefault><field>Detailed_Notes__c</field><table>Project__c.Project_Intelligence_Records__r</table></columns>
+        <masterLabel>Project</masterLabel>
+    </sections>
+</ReportType>

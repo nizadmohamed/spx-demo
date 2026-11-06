@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Strategic_Project_Text__c</fullName>
+    <description>Yes or No text version of the project's Strategic Project flag. Used as the Strategic Projects filter on the SPX Executive dashboard, because dashboards do not filter well on checkboxes.</description>
+    <externalId>false</externalId>
+    <formula>IF(Strategic_Project__c, &quot;Yes&quot;, &quot;No&quot;)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Strategic Project (Yes/No)</label>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

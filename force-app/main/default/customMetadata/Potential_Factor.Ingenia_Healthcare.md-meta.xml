@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Ingenia Healthcare</label>
+    <protected>false</protected>
+    <values>
+        <field>Brand_Value__c</field>
+        <value xsi:type="xsd:string">Ingénia</value>
+    </values>
+    <values>
+        <field>Vertical_Value__c</field>
+        <value xsi:type="xsd:string">Healthcare</value>
+    </values>
+    <values>
+        <field>Calculation_Type__c</field>
+        <value xsi:type="xsd:string">AHU_AIRFLOW</value>
+    </values>
+    <values>
+        <field>Basis__c</field>
+        <value xsi:type="xsd:string">Construction value ÷ $/sq ft × cfm per sq ft × $ per cfm</value>
+    </values>
+    <values>
+        <field>Basis_Note__c</field>
+        <value xsi:type="xsd:string">(published custom AHU range $4–12 per cfm)</value>
+    </values>
+    <values>
+        <field>Source__c</field>
+        <value xsi:type="xsd:string">Estimate: CSE ($4–12 per cfm), ACHR (~1 cfm/sq ft ICU), BuilderMuse and RSMeans ($/sq ft)</value>
+    </values>
+    <values>
+        <field>Factor_1__c</field>
+        <value xsi:type="xsd:double">750</value>
+    </values>
+    <values>
+        <field>Factor_2__c</field>
+        <value xsi:type="xsd:double">1.2</value>
+    </values>
+    <values>
+        <field>Factor_3__c</field>
+        <value xsi:type="xsd:double">11.25</value>
+    </values>
+</CustomMetadata>

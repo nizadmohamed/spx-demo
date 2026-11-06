@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <assignments>
+        <name>Set_Count</name>
+        <label>Set Count</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varCount</assignToReference>
+            <operator>AssignCount</operator>
+            <value><elementReference>Get_Siblings</elementReference></value>
+        </assignmentItems>
+        <connector><targetReference>Update_Parent</targetReference></connector>
+    </assignments>
+    <description>Account hierarchy, before delete. Recalculates Is Global Parent on the parent once this child is gone.</description>
+    <formulas>
+        <name>fParentIsGP</name>
+        <dataType>Boolean</dataType>
+        <expression>AND(ISBLANK({!Get_Parent.ParentId}), {!varCount} &gt; 0)</expression>
+    </formulas>
+    <interviewLabel>SPX Account Hierarchy Delete {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Account Hierarchy - Delete</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Parent</name>
+        <label>Get Parent</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector><targetReference>Get_Siblings</targetReference></connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.ParentId</elementReference></value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Siblings</name>
+        <label>Get Siblings</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector><targetReference>Set_Count</targetReference></connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ParentId</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.ParentId</elementReference></value>
+        </filters>
+        <filters>
+            <field>Id</field>
+            <operator>NotEqualTo</operator>
+            <value><elementReference>$Record.Id</elementReference></value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_Parent</name>
+        <label>Update Parent</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.ParentId</elementReference></value>
+        </filters>
+        <inputAssignments>
+            <field>Is_Global_Parent__c</field>
+            <value><elementReference>fParentIsGP</elementReference></value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Get_Parent</targetReference></connector>
+        <filterFormula>AND(NOT({!$Permission.SPX_Bypass_Automation}), NOT(ISBLANK({!$Record.ParentId})))</filterFormula>
+        <object>Account</object>
+        <recordTriggerType>Delete</recordTriggerType>
+        <triggerType>RecordBeforeDelete</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>varCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value><numberValue>0.0</numberValue></value>
+    </variables>
+</Flow>

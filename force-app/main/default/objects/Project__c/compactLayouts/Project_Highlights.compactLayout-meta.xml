@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Project_Highlights</fullName>
+    <fields>Name</fields>
+    <fields>Vertical__c</fields>
+    <fields>Project_Phase__c</fields>
+    <fields>Estimated_Construction_Value__c</fields>
+    <fields>Total_SPX_Potential__c</fields>
+    <fields>Brands_Engaged__c</fields>
+    <fields>BOD_Secured__c</fields>
+    <fields>Rep_Conflict__c</fields>
+    <label>Project Highlights</label>
+</CompactLayout>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Clear_Project</name>
+        <label>Clear Project</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Project__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>vEmpty</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Type_Check</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Clear_Type</name>
+        <label>Clear Project Intelligence Type</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Project_Intelligence_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>vEmpty</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Brand</name>
+        <label>Set Brand</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Brand__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Opportunity.Brand__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Sharing_Check</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Project</name>
+        <label>Set Project</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Project__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Opportunity.Project__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Type_Check</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Brand_Check</name>
+        <label>Brand blank</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Sharing_Check</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Brand set</defaultConnectorLabel>
+        <rules>
+            <name>Brand_Is_Blank</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Brand__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Brand</targetReference>
+            </connector>
+            <label>Brand blank</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Sharing_Check</name>
+        <label>Share with Project</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Clear_Project</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not shared</defaultConnectorLabel>
+        <rules>
+            <name>No_Opportunity_Keep_Project</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Opportunity__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue><booleanValue>true</booleanValue></rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Type_Check</targetReference>
+            </connector>
+            <label>No Opportunity (keep Project as entered)</label>
+        </rules>
+        <rules>
+            <name>All_Project_Members</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Share_with_Project__c</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue><booleanValue>true</booleanValue></rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Project</targetReference>
+            </connector>
+            <label>Shared with Project</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Type_Check</name>
+        <label>Insight Type</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Is Project Intelligence</defaultConnectorLabel>
+        <rules>
+            <name>Not_Project_Intelligence</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Insight_Type__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Project Intelligence</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Clear_Type</targetReference>
+            </connector>
+            <label>Not Project Intelligence</label>
+        </rules>
+    </decisions>
+    <description>Defaults Brand from the opportunity, sets Project from the opportunity only when Share with Project is checked, and clears Project Intelligence Type when Insight Type is not Project Intelligence. Before save, no extra DML.</description>
+    <interviewLabel>SPX Project Intelligence Defaults {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Project Intelligence Defaults</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Opportunity</name>
+        <label>Get Opportunity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Brand_Check</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Opportunity__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Opportunity</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Opportunity</targetReference>
+        </connector>
+        <filterFormula>NOT({!$Permission.SPX_Bypass_Automation})</filterFormula>
+        <object>Project_Intelligence__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>vEmpty</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

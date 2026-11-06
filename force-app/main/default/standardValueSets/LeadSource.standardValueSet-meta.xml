@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>true</sorted>
+    <standardValue>
+        <fullName>Cold Call</fullName>
+        <default>false</default>
+        <label>Cold Call</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Community</fullName>
+        <default>false</default>
+        <label>Community</label>
+    </standardValue>
+    <standardValue>
+        <fullName>ConstructConnect</fullName>
+        <default>false</default>
+        <label>ConstructConnect</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Data.com</fullName>
+        <default>false</default>
+        <label>Data.com</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Inbound Call</fullName>
+        <default>false</default>
+        <label>Inbound Call</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Ingénia ERP</fullName>
+        <default>false</default>
+        <label>Ingénia ERP</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Marketing Event</fullName>
+        <default>false</default>
+        <label>Marketing Event</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Partner</fullName>
+        <default>false</default>
+        <label>Partner</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Patterson-Kelley ERP</fullName>
+        <default>false</default>
+        <label>Patterson-Kelley ERP</label>
+    </standardValue>
+    <standardValue>
+        <fullName>QTC</fullName>
+        <default>false</default>
+        <label>QTC</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Referral</fullName>
+        <default>false</default>
+        <label>Referral</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Salesforce IoT</fullName>
+        <default>false</default>
+        <label>Salesforce IoT</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Social Media</fullName>
+        <default>false</default>
+        <label>Social Media</label>
+    </standardValue>
+    <standardValue>
+        <fullName>TAMCO ERP</fullName>
+        <default>false</default>
+        <label>TAMCO ERP</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Website</fullName>
+        <default>false</default>
+        <label>Website</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Spartan Systems</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Spartan Systems</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Influencer</fullName>
+        <default>false</default>
+        <label>Influencer</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Rep Firm</fullName>
+        <default>false</default>
+        <label>Rep Firm</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Rep Entered</fullName>
+        <default>false</default>
+        <label>Rep Entered</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+        <label>Other</label>
+    </standardValue>
+</StandardValueSet>

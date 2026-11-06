@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Lead</entityName>
+    <fieldName>Status</fieldName>
+    <masterLabel>Sales - Lead Path</masterLabel>
+    <pathAssistantSteps>
+        <info>&lt;p&gt;Converted to an account, contact and opportunity on the Golden Template. Reuse the existing account if one matches.&lt;/p&gt;</info>
+        <picklistValueName>Converted</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <info>&lt;p&gt;Newly routed to you. Review the project intelligence and brand potential, then make contact.&lt;/p&gt;</info>
+        <picklistValueName>New</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>Qualified</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <info>&lt;p&gt;Held for review before it is routed to a brand.&lt;/p&gt;</info>
+        <picklistValueName>Held</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>SDO_Lead_Default</recordTypeName>
+</PathAssistant>

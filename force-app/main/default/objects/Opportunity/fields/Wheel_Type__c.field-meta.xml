@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Wheel_Type__c</fullName>
+    <label>Wheel Type</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>BI</fullName>
+                <default>false</default>
+                <label>BI</label>
+            </value>
+            <value>
+                <fullName>SWSI</fullName>
+                <default>false</default>
+                <label>SWSI</label>
+            </value>
+            <value>
+                <fullName>DWDI</fullName>
+                <default>false</default>
+                <label>DWDI</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

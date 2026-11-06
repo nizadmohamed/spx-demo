@@ -1,0 +1,48 @@
+SPX DEMO - PERSONA AND ACTIVATION QUICK REFERENCE (print this)
+===============================================================
+LOGIN URL FORMAT
+  https://ac1792035792112.my.salesforce.com      (org domain; sign in with the username below)
+  Username format: <alias>@accenture.com.spx.demo        Passwords: set in Setup > Users before the session.
+
+PERSONAS
+  Name              Alias     Profile / role                              Sees                                 Steps
+  Sam Okafor        sokafor   System Administrator, no role               Everything (admin)                   1, 2, 6
+  Priya Natarajan   pnataraj  SPX Segment Sales Leader, Segment Sales L.  All brands, all projects, dashboard    2, 3, 4, 5, 7
+  Marcus Hill       mhill     SPX Brand Sales Leader, Ingenia Brand L.    Ingenia RSMs and their records       4
+  Dana Reyes        dreyes    SPX RSM, Ingenia Rep Ohio Valley            Her own opportunities, 7 projects    1, 4, 5
+  Tom Brennan       tbrennan  SPX RSM, Cooling Rep                        Cooling only                         3, 6
+  Lena Duval        lduval    SPX RSM, Patterson-Kelley Rep               PK only                              3
+  Jess Park         jpark     SPX RSM, TAMCO Rep                          TAMCO only                           2, 4
+  Rob Keane         rkeane    SPX RSM, PK Rep Illinois                    PK (second owner on East Tower)      3
+  Alex Moreau       amoreau   SPX RSM, Segment Support                    Segment visibility                   1, 3
+  Kim Alvarez       kalvarez  SPX RSM, Chicago Fan Rep                 Chicago Fan (after step 6)        6
+  Migration User    migrate   SPX Integration + SPX Migration Bypass      Data loads only (never log in live)  6 (shown)
+  Integration User  spxinteg  SPX Integration + ERP Integration           ERP loads only                       2
+
+STEP 6 ACTIVATION SEQUENCE (do in this order)
+  1. Brand value        Setup > Picklist Value Sets > Brand > Chicago Fan > Activate
+  2. Lightning page     Setup > Lightning App Builder > "Opportunity - Golden Template v2" > Activation > App Default > HVAC Segment
+  3. Brand Config Live  Setup > Custom Metadata Types > Brand Configuration > Manage Records > Chicago Fan > Edit > tick Live > Save
+  4. Flow version 4     Setup > Flows > "SPX Opportunity participation" > open Version 4 > Activate
+  5. Validation rule    Setup > Object Manager > Opportunity > Validation Rules > CF_Fan_Selection_Before_Spec > Edit > Active > Save
+  6. Permission set     Setup > Users > Kim Alvarez > Permission Set Assignments > Edit Assignments > SPX Chicago Fan > Add > Save
+
+STEP 6 RESET (reverse order)
+  1. Delete Kim's Chicago Fan opportunity; clear the CF flag on Lakemont (Project > untick CF Participating)
+  2. Remove SPX Chicago Fan from Kim (Setup > Users > Kim > Permission Set Assignments)
+  3. Deactivate CF_Fan_Selection_Before_Spec
+  4. Reactivate flow version 3 (Setup > Flows > SPX Opportunity participation > Version 3 > Activate); version 4 goes inactive
+  5. Untick Live on Brand Configuration Chicago Fan
+  6. Set the app default back to "Opportunity - Golden Template" (Lightning App Builder > Activation)
+  7. Deactivate the Brand value Chicago Fan (Setup > Picklist Value Sets > Brand)
+
+STEP 5 RESET            powershell -File docs\scripts\reset_step5.ps1
+  Manual equivalent: Quote > Stop Sync; delete the quote; delete the opportunity products; set Amount to 3,350,000.
+
+STEP 2 RESET            powershell -File docs\scripts\reset_step2.ps1
+  A merge cannot be undone. Script recreates ARDENT BLDRS INC (Patterson-Kelley ERP, Columbus 43219, (614) 555-0190)
+  as the Integration User so a Duplicate Record Set exists again, and moves PK-004417 back under it.
+  Manual fallback: restore the merged record from the Recycle Bin (App Launcher > Recycle Bin), then confirm the Duplicate Record Set.
+
+STEP 1 RESET            powershell -File docs\scripts\reset_feed.ps1
+  Deletes the Westfield project, opportunity and Rachel Tran; puts all 12 feed leads back to Staged.

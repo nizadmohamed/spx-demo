@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <assignments>
+        <name>Add_Reference</name>
+        <label>Add Reference</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varText</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>fLine</elementReference></value>
+        </assignmentItems>
+        <connector><targetReference>Loop_References</targetReference></connector>
+    </assignments>
+    <description>Keeps the ERP References text on a Brand Relationship up to date, for example QTC 118220, 118904, 120011, from the ERP references linked to it.</description>
+    <formulas>
+        <name>fLine</name>
+        <dataType>String</dataType>
+        <expression>LEFT(IF(ISBLANK({!varText}), TEXT({!Loop_References.ERP_System__c}) &amp; &quot; &quot; &amp; {!Loop_References.ERP_Customer_Number__c}, {!varText} &amp; &quot;, &quot; &amp; {!Loop_References.ERP_Customer_Number__c}), 255)</expression>
+    </formulas>
+    <interviewLabel>SPX ERP References Text {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX ERP References Text</label>
+    <loops>
+        <name>Loop_References</name>
+        <label>Loop References</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_References</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector><targetReference>Add_Reference</targetReference></nextValueConnector>
+        <noMoreValuesConnector><targetReference>Update_Brand_Relationship</targetReference></noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_References</name>
+        <label>Get References</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector><targetReference>Loop_References</targetReference></connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Brand_Relationship__c</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.Brand_Relationship__c</elementReference></value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>ERP_Cross_Reference__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_Brand_Relationship</name>
+        <label>Update Brand Relationship</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.Brand_Relationship__c</elementReference></value>
+        </filters>
+        <inputAssignments>
+            <field>ERP_References__c</field>
+            <value><elementReference>varText</elementReference></value>
+        </inputAssignments>
+        <object>Brand_Relationship__c</object>
+    </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Get_References</targetReference></connector>
+        <filterFormula>AND(NOT({!$Permission.SPX_Bypass_Automation}), NOT(ISBLANK({!$Record.Brand_Relationship__c})))</filterFormula>
+        <object>ERP_Cross_Reference__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>varText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value><stringValue></stringValue></value>
+    </variables>
+</Flow>

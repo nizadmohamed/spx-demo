@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SPX_Quote_Highlights</fullName>
+    <fields>OpportunityId</fields>
+    <fields>Status</fields>
+    <fields>ContactId</fields>
+    <fields>TotalPrice</fields>
+    <fields>IsSyncing</fields>
+    <label>SPX Quote Highlights</label>
+</CompactLayout>

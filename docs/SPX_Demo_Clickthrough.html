@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPX HVAC Segment – Clickable demo prototype</title>
+<style>
+
+:root{
+  color-scheme: light;
+  --bg:#F5F4F8; --surface:#FFFFFF; --ink:#1D1727; --muted:#5D5670; --line:#E1DDE9;
+  --accent:#7500C0; --accent-soft:#F1E6FA; --star:#9A5B00; --star-soft:#FFF3DC;
+  --ok:#1F7A45; --ok-soft:#E3F4EA; --risk:#A3320B; --risk-soft:#FCE9E2;
+  /* Salesforce mockup palette – stays light in both modes, like a screenshot */
+  --sf-page:#EEF1F6; --sf-surface:#FFFFFF; --sf-ink:#181818; --sf-muted:#5C5C5C; --sf-weak:#747474;
+  --sf-line:#E5E5E5; --sf-line2:#C9C9C9; --sf-brand:#0176D3; --sf-brand-dk:#014486; --sf-brand-lt:#EEF4FF;
+  --sf-green:#2E844A; --sf-green-lt:#E6F4EA; --sf-warn:#A96404; --sf-warn-lt:#FEF1E1; --sf-red:#BA0517; --sf-red-lt:#FDECEC;
+  --sf-gray-lt:#F3F3F3; --sf-sandbox:#2B2B2B; --sf-purple:#5A1BA9;
+  --font: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#16131C; --surface:#211C29; --ink:#EEEAF5; --muted:#ABA3BA; --line:#3A3346;
+    --accent:#CB8CFF; --accent-soft:#33244A; --star:#F2B75B; --star-soft:#3A2D17;
+    --ok:#6FD39A; --ok-soft:#1C3527; --risk:#FF9B79; --risk-soft:#3D231B;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--font); background:var(--bg); color:var(--ink); font-size:15px; line-height:1.5}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* ---------- shell ---------- */
+.shell{display:grid; grid-template-columns:248px 1fr; min-height:100vh}
+.side{position:sticky; top:0; height:100vh; overflow:auto; border-right:1px solid var(--line); background:var(--surface); padding:22px 14px}
+.side .kit{font-size:13px; color:var(--muted); margin:0 10px 2px}
+.side h1{font-size:19px; line-height:1.25; margin:0 10px 20px; font-weight:650}
+.nav{list-style:none; margin:0; padding:0}
+.nav button{all:unset; box-sizing:border-box; width:100%; display:grid; grid-template-columns:30px 1fr; gap:6px; align-items:start; padding:9px 10px; border-radius:8px; cursor:pointer; color:var(--ink); font-size:14px; line-height:1.3}
+.nav button:hover{background:var(--accent-soft)}
+.nav button[aria-current="true"]{background:var(--accent-soft); color:var(--accent); font-weight:600}
+.nav .n{font-variant-numeric:tabular-nums; color:var(--muted); font-weight:600}
+.nav button[aria-current="true"] .n{color:var(--accent)}
+.nav .sep{height:1px; background:var(--line); margin:10px 10px}
+.nav .starred .n{color:var(--star)}
+.main{padding:34px 44px 80px; min-width:0}
+.page{display:none; max-width:1240px}
+.page.on{display:block}
+
+.step-head{display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:start; margin-bottom:22px}
+.big-n{font-size:64px; line-height:.9; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; letter-spacing:-.03em}
+.big-n.star{color:var(--star)}
+.step-head h2{font-size:28px; line-height:1.15; margin:2px 0 8px; font-weight:650; letter-spacing:-.01em}
+.ask{margin:0; color:var(--muted); max-width:78ch}
+.ask q{color:var(--ink)}
+.cap{display:inline-block; margin-top:10px; font-size:13px; padding:3px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent); font-weight:600}
+.cap.star{background:var(--star-soft); color:var(--star)}
+
+.lede{font-size:17px; max-width:76ch; margin:0 0 22px}
+h3{font-size:18px; margin:30px 0 10px; font-weight:650}
+h4{font-size:15px; margin:18px 0 6px; font-weight:650}
+p{max-width:80ch}
+.muted{color:var(--muted)}
+
+/* screen stepper */
+.screens{display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 12px}
+.screens button{all:unset; cursor:pointer; padding:7px 12px; border:1px solid var(--line); border-radius:8px; font-size:13.5px; background:var(--surface); color:var(--ink)}
+.screens button[aria-pressed="true"]{border-color:var(--accent); color:var(--accent); font-weight:600; box-shadow:inset 0 0 0 1px var(--accent)}
+.screens .k{color:var(--muted); margin-right:6px; font-variant-numeric:tabular-nums}
+.screen{display:none}.screen.on{display:block}
+.caption{font-size:13.5px; color:var(--muted); margin:10px 2px 0; max-width:100ch}
+
+/* build panels */
+.build{display:grid; grid-template-columns:1.25fr 1fr; gap:22px; margin-top:28px}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px}
+.panel h3{margin-top:0}
+.panel.full{grid-column:1/-1}
+table.spec{width:100%; border-collapse:collapse; font-size:13.5px}
+table.spec th{text-align:left; font-weight:600; color:var(--muted); padding:6px 8px; border-bottom:1px solid var(--line)}
+table.spec td{padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top}
+table.spec td:first-child{font-weight:600; white-space:nowrap}
+table.spec code, .panel code{font-family:Consolas, "SFMono-Regular", Menlo, monospace; font-size:12.5px; background:var(--accent-soft); color:var(--ink); padding:1px 5px; border-radius:4px}
+ol.script{margin:0; padding-left:22px}
+ol.script li{margin:0 0 7px}
+ol.script .who{font-weight:600}
+.callout{border-left:3px solid var(--risk); background:var(--risk-soft); padding:10px 14px; border-radius:0 8px 8px 0; margin:12px 0; font-size:14px}
+.callout.ok{border-color:var(--ok); background:var(--ok-soft)}
+.callout.star{border-color:var(--star); background:var(--star-soft)}
+ul.tight{margin:0; padding-left:20px}
+ul.tight li{margin-bottom:6px}
+.effort{display:flex; gap:18px; flex-wrap:wrap; font-size:13.5px; color:var(--muted); margin-top:12px}
+.effort b{color:var(--ink)}
+
+/* overview */
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+.cast{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+.person{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:14px}
+.person b{display:block; font-size:15px}
+.person span{color:var(--muted)}
+.ros{width:100%; border-collapse:collapse; font-size:14px; background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+.ros td,.ros th{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
+.ros th{color:var(--muted); font-weight:600; font-size:13px}
+.ros .t{font-variant-numeric:tabular-nums; white-space:nowrap; font-weight:600}
+.bar{height:8px; border-radius:4px; background:var(--accent); opacity:.85}
+.bar.star{background:var(--star)}
+
+/* ================= Salesforce mockup ================= */
+.sf{border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--sf-page); color:var(--sf-ink); font-size:13px; line-height:1.4; box-shadow:0 10px 30px -18px rgba(20,10,40,.45)}
+.sf *{color:inherit}
+.chrome{display:flex; align-items:center; gap:10px; background:#DFE3EA; padding:7px 12px; border-bottom:1px solid #CBD2DC}
+.dots{display:flex; gap:6px}.dots i{width:10px; height:10px; border-radius:50%; background:#B8BFCA; display:block}
+.url{flex:1; background:#fff; border-radius:6px; padding:3px 10px; font-size:12px; color:var(--sf-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.who-chip{font-size:12px; background:#fff; border-radius:999px; padding:2px 10px 2px 3px; display:flex; align-items:center; gap:6px; color:var(--sf-ink); white-space:nowrap}
+.av{width:20px; height:20px; border-radius:50%; display:inline-grid; place-items:center; font-size:10px; font-weight:700; color:#fff; background:var(--sf-brand-dk)}
+.sandbox-bar{background:var(--sf-sandbox); color:#fff; font-size:12px; padding:5px 14px; display:flex; justify-content:space-between}
+.sandbox-bar *{color:#fff}
+.prod-bar{background:var(--sf-green); color:#fff; font-size:12px; padding:5px 14px}
+.prod-bar *{color:#fff}
+.g-head{display:flex; align-items:center; gap:14px; background:var(--sf-surface); padding:7px 14px; border-bottom:1px solid var(--sf-line)}
+.logo{width:34px; height:24px; border-radius:5px; background:var(--sf-brand-dk); color:#fff; font-weight:800; font-size:11px; display:grid; place-items:center; letter-spacing:.02em}
+.logo *{color:#fff}
+.search{flex:1; max-width:520px; margin:0 auto; border:1px solid var(--sf-line2); border-radius:5px; padding:5px 10px; color:var(--sf-weak); font-size:12.5px}
+.g-icons{display:flex; gap:10px; color:var(--sf-muted)}
+.g-icons span{width:18px; height:18px; border-radius:50%; border:1.5px solid #9AA0A8; display:block}
+.app-nav{display:flex; align-items:stretch; background:var(--sf-surface); border-bottom:3px solid var(--sf-brand); padding:0 10px; gap:2px; overflow:hidden; white-space:nowrap}
+.waffle{display:grid; grid-template-columns:repeat(3,4px); gap:2px; padding:12px 8px; align-self:center}
+.waffle i{width:4px; height:4px; background:#706E6B; border-radius:1px; display:block}
+.app-name{font-size:16px; font-weight:600; padding:9px 18px 9px 6px; align-self:center}
+.app-nav .tab{padding:10px 11px 8px; font-size:13px; color:var(--sf-ink); border-bottom:3px solid transparent; margin-bottom:-3px}
+.app-nav .tab.on{border-bottom-color:var(--sf-brand-dk); font-weight:600; background:var(--sf-brand-lt)}
+.sf-body{padding:12px}
+.row{display:grid; gap:12px}
+.c2{grid-template-columns:2fr 1fr}.c11{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--sf-surface); border:1px solid var(--sf-line); border-radius:4px; box-shadow:0 2px 2px 0 rgba(0,0,0,.08); margin-bottom:12px}
+.card-h{display:flex; align-items:center; gap:9px; padding:10px 12px; border-bottom:1px solid var(--sf-line)}
+.card-h h5{margin:0; font-size:14px; font-weight:700; flex:1}
+.card-b{padding:10px 12px}
+.ico{width:24px; height:24px; border-radius:4px; display:inline-grid; place-items:center; color:#fff; font-size:11px; font-weight:700; flex:none}
+.ico *{color:#fff}
+.ico.lg{width:36px; height:36px; font-size:15px}
+.i-opp{background:#FF5D2D}.i-acc{background:#5867E8}.i-con{background:#A094ED}.i-lead{background:#F88962}.i-proj{background:#0B827C}
+.i-quote{background:#88C651}.i-xref{background:#3C97DD}.i-rep{background:#F4BC25}.i-mdt{background:#7E8BE4}.i-dash{background:#EF6E64}.i-dev{background:#9050E9}.i-list{background:#3BA755}
+.btn{display:inline-block; border:1px solid var(--sf-line2); background:#fff; color:var(--sf-brand); border-radius:4px; padding:4px 12px; font-size:12.5px; font-weight:600; white-space:nowrap; cursor:default; font-family:inherit}
+.btn.brand{background:var(--sf-brand); border-color:var(--sf-brand); color:#fff}
+.btn.brand *{color:#fff}
+button.btn{cursor:pointer}
+button.btn:hover{filter:brightness(.95)}
+.btn-grp{display:flex; gap:0}
+.btn-grp .btn{border-radius:0; margin-left:-1px}.btn-grp .btn:first-child{border-radius:4px 0 0 4px; margin-left:0}.btn-grp .btn:last-child{border-radius:0 4px 4px 0}
+.hl{background:var(--sf-surface); border:1px solid var(--sf-line); border-radius:4px; box-shadow:0 2px 2px 0 rgba(0,0,0,.08); margin-bottom:12px}
+.hl-top{display:flex; align-items:center; gap:11px; padding:12px 14px 10px}
+.hl-top .t{flex:1; min-width:0}
+.hl-top .obj{font-size:12px; color:var(--sf-muted)}
+.hl-top .nm{font-size:18px; font-weight:700; line-height:1.2}
+.hl-fields{display:flex; flex-wrap:wrap; gap:6px 30px; padding:0 14px 12px 61px}
+.hl-fields div{font-size:12px; color:var(--sf-muted)}
+.hl-fields b{display:block; font-size:13px; color:var(--sf-ink); font-weight:400}
+.path{display:flex; gap:3px; padding:10px 12px}
+.path span{flex:1; text-align:center; font-size:12px; padding:7px 4px 7px 14px; background:var(--sf-gray-lt); color:var(--sf-ink); clip-path:polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%, 9px 50%); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.path span:first-child{clip-path:polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%); border-radius:14px 0 0 14px}
+.path span:last-child{clip-path:polygon(0 0, 100% 0, 100% 100%, 0 100%, 9px 50%); border-radius:0 14px 14px 0}
+.path .done{background:var(--sf-green); color:#fff}
+.path .cur{background:var(--sf-brand-dk); color:#fff; font-weight:600}
+.path .won{background:var(--sf-green); color:#fff}
+.guide{display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:4px 14px 12px; font-size:12.5px}
+.guide h6{margin:0 0 4px; font-size:12.5px}
+.guide ul{margin:0; padding-left:16px}
+.fields{display:grid; grid-template-columns:1fr 1fr; gap:0 22px}
+.f{border-bottom:1px solid var(--sf-line); padding:6px 0 5px; display:flex; justify-content:space-between; gap:8px; min-height:44px}
+.f .l{font-size:12px; color:var(--sf-muted); display:block}
+.f .v{font-size:13px}
+.f .pen,.f .lock{flex:none; width:14px; height:14px; margin-top:12px; opacity:.55}
+.lk{color:var(--sf-brand)}
+.sec{font-size:13.5px; font-weight:700; background:var(--sf-gray-lt); padding:5px 8px; margin:10px 0 2px; border-radius:3px}
+table.dt{width:100%; border-collapse:collapse; font-size:12.5px}
+table.dt th{text-align:left; font-weight:600; color:var(--sf-muted); background:#FAFAF9; padding:6px 8px; border-bottom:1px solid var(--sf-line); white-space:nowrap}
+table.dt td{padding:7px 8px; border-bottom:1px solid var(--sf-line); vertical-align:middle}
+table.dt tr.hot td{background:#FFF8E6}
+table.dt tr.new td{background:var(--sf-brand-lt)}
+table.dt td.lk{white-space:nowrap}
+.noicon .pen,.noicon .lock{display:none}
+table.dt .num{text-align:right; font-variant-numeric:tabular-nums}
+.pill{display:inline-block; padding:1px 8px; border-radius:999px; font-size:11.5px; font-weight:600; background:var(--sf-gray-lt); color:var(--sf-ink); white-space:nowrap}
+.pill.g{background:var(--sf-green-lt); color:var(--sf-green)}
+.pill.w{background:var(--sf-warn-lt); color:var(--sf-warn)}
+.pill.r{background:var(--sf-red-lt); color:var(--sf-red)}
+.pill.b{background:var(--sf-brand-lt); color:var(--sf-brand-dk)}
+.pill.p{background:#F2EBFC; color:var(--sf-purple)}
+.toast{display:flex; gap:10px; align-items:center; background:var(--sf-green); color:#fff; border-radius:4px; padding:9px 14px; margin-bottom:12px; font-size:13px}
+.toast *{color:#fff}
+.toast.info{background:#706E6B}
+.toast.warn{background:#FE9339; color:#181818}
+.toast.warn *{color:#181818}
+.alert{border:1px solid #F3B3B3; background:var(--sf-red-lt); border-radius:4px; padding:10px 12px; font-size:12.5px; margin-bottom:12px}
+.alert b{color:var(--sf-red)}
+.tile{background:var(--sf-surface); border:1px solid var(--sf-line); border-radius:4px; padding:10px 12px}
+.tile .l{font-size:12px; color:var(--sf-muted)}
+.tile .v{font-size:24px; font-weight:300; line-height:1.2; font-variant-numeric:tabular-nums}
+.tile .s{font-size:11.5px; color:var(--sf-muted)}
+.tile .v.red{color:var(--sf-red); font-weight:500}
+.modal-wrap{background:rgba(8,7,7,.5); padding:24px; border-radius:0}
+.modal{background:#fff; border-radius:4px; max-width:820px; margin:0 auto; overflow:hidden}
+.modal-h{text-align:center; padding:14px; font-size:18px; font-weight:400; border-bottom:1px solid var(--sf-line)}
+.modal-b{padding:14px 20px; background:#fff}
+.modal-f{background:var(--sf-gray-lt); padding:10px 16px; text-align:right; border-top:1px solid var(--sf-line); display:flex; justify-content:flex-end; gap:8px}
+.conv{display:grid; grid-template-columns:110px 1fr 1fr; gap:10px; padding:12px 0; border-bottom:1px solid var(--sf-line); align-items:start}
+.conv:last-child{border-bottom:0}
+.conv .h{font-weight:700; font-size:14px}
+.opt{border:1px solid var(--sf-line2); border-radius:4px; padding:8px 10px; font-size:12.5px}
+.opt.sel{border-color:var(--sf-brand); box-shadow:inset 0 0 0 1px var(--sf-brand); background:var(--sf-brand-lt)}
+.radio{display:inline-block; width:12px; height:12px; border-radius:50%; border:1.5px solid #888; margin-right:6px; vertical-align:-1px}
+.opt.sel .radio{border:4px solid var(--sf-brand)}
+.input{border:1px solid var(--sf-line2); border-radius:4px; padding:4px 8px; font-size:12.5px; background:#fff; margin-top:3px}
+.tree{font-size:13px}
+.tree .node{display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid var(--sf-line)}
+.tree .node.d1{padding-left:34px}.tree .node.d2{padding-left:60px}
+.tree .node .grow{flex:1}
+.chip{display:inline-flex; align-items:center; gap:4px; font-size:11px; border:1px solid var(--sf-line2); border-radius:3px; padding:1px 6px; background:#fff; color:var(--sf-muted); margin-left:4px; white-space:nowrap}
+.chip.new{border-color:var(--sf-brand); color:var(--sf-brand-dk); background:var(--sf-brand-lt); font-weight:600}
+.meter{height:14px; border-radius:7px; background:var(--sf-warn-lt); overflow:hidden; display:flex}
+.meter i{display:block; height:100%; background:var(--sf-brand)}
+.feed{font-size:12.5px}
+.feed div{padding:7px 0; border-bottom:1px solid var(--sf-line)}
+.feed div:last-child{border-bottom:0}
+.feed .when{color:var(--sf-weak); font-size:11.5px}
+.split{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.split > .sf{box-shadow:none}
+.hbar{display:grid; grid-template-columns:110px 1fr 64px; align-items:center; gap:8px; font-size:12px; margin:6px 0}
+.hbar .track{display:flex; height:18px; background:#F3F3F3; border-radius:2px; overflow:hidden}
+.hbar .track i{display:block; height:100%}
+.hbar .val{text-align:right; font-variant-numeric:tabular-nums}
+.legend{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:11.5px; color:var(--sf-muted); margin-top:6px}
+.legend i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:0}
+.funnel div{margin:0 auto 3px; text-align:center; color:#fff; font-size:11.5px; padding:5px 0; border-radius:2px}
+.funnel div *{color:#fff}
+.gauge{display:block; margin:0 auto}
+.persona-switch{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+.persona-switch button{all:unset; cursor:pointer; display:flex; gap:8px; align-items:center; padding:7px 12px 7px 7px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--ink); font-size:13.5px}
+.persona-switch button[aria-pressed="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); font-weight:600}
+.persona-switch .av{width:24px; height:24px; font-size:11px}
+.why{font-size:12px; color:var(--sf-muted)}
+.mask{color:var(--sf-weak); font-style:italic}
+.dim td{color:#9B9B9B}
+
+@media (max-width: 1000px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static; height:auto; border-right:0; border-bottom:1px solid var(--line)}
+  .nav{display:flex; overflow-x:auto; gap:4px}
+  .nav li{flex:none}
+  .nav .sep{display:none}
+  .main{padding:22px 16px 60px}
+  .build,.grid2,.grid3,.cast,.c2,.c11,.c3,.c4,.split{grid-template-columns:1fr}
+  .big-n{font-size:44px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+
+/* ---------- click-through shell ---------- */
+body{background:var(--bg)}
+.ct-top{display:flex; align-items:center; gap:18px; padding:14px 24px; border-bottom:1px solid var(--line); background:var(--surface); flex-wrap:wrap}
+.ct-top h1{font-size:17px; margin:0; font-weight:650; white-space:nowrap}
+.ct-top .sub{color:var(--muted); font-size:13px}
+.ct-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+.ct-tabs button{all:unset; cursor:pointer; padding:7px 12px; border-radius:8px; border:1px solid var(--line); font-size:13.5px; color:var(--ink); background:var(--surface); white-space:nowrap}
+.ct-tabs button:hover{background:var(--accent-soft)}
+.ct-tabs button[aria-current="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); color:var(--accent); font-weight:600}
+.ct-tabs button.star{color:var(--star)}
+.ct-tabs button.star[aria-current="true"]{border-color:var(--star); box-shadow:inset 0 0 0 1px var(--star)}
+.ct-tabs .done-tick{color:var(--ok); margin-left:4px}
+.ct-main{display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:20px; padding:20px 24px 40px; align-items:start}
+.stage{min-width:0}
+.stage .sf{min-height:560px; display:flex; flex-direction:column}
+.stage .sf > .sf-body{flex:1}
+.split .sf{display:flex; flex-direction:column}
+.split .sf > .sf-body{flex:1}
+.presenter{position:sticky; top:16px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 18px 16px}
+.presenter .scn{font-size:13px; color:var(--muted); margin:0 0 2px}
+.presenter h2{font-size:18px; line-height:1.25; margin:0 0 12px; font-weight:650}
+.dots-prog{display:flex; gap:4px; margin:0 0 14px}
+.dots-prog i{flex:1; height:4px; border-radius:2px; background:var(--line); display:block}
+.dots-prog i.on{background:var(--accent)}
+.dots-prog i.cur{background:var(--accent); opacity:.45}
+.presenter.star .dots-prog i.on{background:var(--star)}
+.presenter.star .dots-prog i.cur{background:var(--star)}
+.pstep{font-size:13px; color:var(--muted); margin:0 0 4px; font-variant-numeric:tabular-nums}
+.pdo{font-size:15px; font-weight:600; margin:0 0 12px; line-height:1.4}
+.psay{font-size:14px; line-height:1.55; margin:0 0 14px; padding:10px 12px; border-radius:8px; background:var(--accent-soft)}
+.presenter.star .psay{background:var(--star-soft)}
+.psay b{display:block; font-size:12.5px; color:var(--muted); font-weight:600; margin-bottom:2px}
+.pwatch{font-size:13px; color:var(--muted); margin:0 0 14px; line-height:1.45; border-left:3px solid var(--line); padding-left:10px}
+.pwatch b{color:var(--ink)}
+.pswitch{all:unset; box-sizing:border-box; cursor:pointer; display:block; width:100%; text-align:center; padding:10px; border-radius:8px; background:var(--accent); color:var(--surface); font-weight:600; font-size:14px; margin:0 0 12px}
+.presenter.star .pswitch{background:var(--star); color:var(--surface)}
+.pnav{display:flex; gap:8px}
+.pnav button{all:unset; cursor:pointer; flex:1; text-align:center; padding:8px; border:1px solid var(--line); border-radius:8px; font-size:13px; color:var(--ink)}
+.pnav button:hover{background:var(--accent-soft)}
+.pnav button:disabled{opacity:.4; cursor:default}
+.pend{font-size:14px; padding:12px; border-radius:8px; background:var(--ok-soft); color:var(--ink); margin:0 0 12px}
+.keys{font-size:12px; color:var(--muted); margin-top:12px}
+
+/* hotspots */
+[data-go]{cursor:pointer; position:relative}
+.sf [data-go]{animation:hot 1.6s ease-in-out infinite; border-radius:4px}
+@keyframes hot{0%,100%{box-shadow:0 0 0 2px rgba(255,140,0,.95), 0 0 0 6px rgba(255,140,0,.0)}50%{box-shadow:0 0 0 2px rgba(255,140,0,.95), 0 0 0 7px rgba(255,140,0,.28)}}
+.sf.nudge [data-go]{animation:none; box-shadow:0 0 0 3px #FF8C00, 0 0 0 10px rgba(255,140,0,.35)}
+tr[data-go] td{background:#FFF6E5 !important}
+.hide-hot .sf [data-go]{animation:none; box-shadow:none}
+.hide-hot tr[data-go] td{background:inherit !important}
+@media (prefers-reduced-motion: reduce){ .sf [data-go]{animation:none; box-shadow:0 0 0 2px #FF8C00} }
+
+/* extra Salesforce bits for the prototype */
+.loginas-bar{background:#F3F3F3; color:#181818; font-size:12px; padding:5px 14px; display:flex; justify-content:space-between; border-bottom:1px solid #DDDBDA}
+.loginas-bar a{color:var(--sf-brand); text-decoration:none}
+.bookmarks{background:#F7F8FA; border-bottom:1px solid #DDE1E7; padding:4px 12px; font-size:12px; display:flex; gap:14px; color:#3E3E3C}
+.bookmarks span{white-space:nowrap}
+.utility{position:relative; background:#fff; border-top:1px solid var(--sf-line); padding:6px 12px; font-size:12.5px; display:flex; gap:16px}
+.util-panel{position:absolute; bottom:34px; left:12px; width:320px; background:#fff; border:1px solid var(--sf-line2); border-radius:4px 4px 0 0; box-shadow:0 -2px 8px rgba(0,0,0,.15)}
+.util-panel .card-h{background:#F3F3F3}
+.bell-drop{position:absolute; right:60px; top:44px; width:360px; background:#fff; border:1px solid var(--sf-line2); border-radius:4px; box-shadow:0 4px 14px rgba(0,0,0,.18); z-index:5}
+.bell-drop .it{padding:10px 12px; border-bottom:1px solid var(--sf-line); font-size:12.5px}
+.bell-dot{position:relative}
+.bell-dot::after{content:"1"; position:absolute; top:-6px; right:-6px; background:var(--sf-red); color:#fff; font-size:9px; width:13px; height:13px; border-radius:50%; display:grid; place-items:center}
+.g-head{position:relative}
+.spinner{display:inline-block; width:14px; height:14px; border:2px solid #C9C9C9; border-top-color:var(--sf-brand); border-radius:50%; animation:spin 1s linear infinite; vertical-align:-2px; margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.prog{height:8px; background:#E5E5E5; border-radius:4px; overflow:hidden}
+.prog i{display:block; height:100%; background:var(--sf-brand)}
+.denied{max-width:560px; margin:60px auto; text-align:center; background:#fff; border:1px solid var(--sf-line); border-radius:4px; padding:30px}
+.denied h4{font-size:20px; margin:0 0 8px; font-weight:400}
+.flow-modal .modal-h{font-weight:400}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 18px}
+.form-grid label{font-size:12px; color:var(--sf-muted); display:block}
+.form-grid .input{margin-top:3px}
+.pickrow{display:flex; gap:10px; align-items:center; border:1px solid var(--sf-line2); border-radius:4px; padding:8px 10px; margin-bottom:6px; font-size:12.5px}
+.pickrow.sel{border-color:var(--sf-brand); box-shadow:inset 0 0 0 1px var(--sf-brand); background:var(--sf-brand-lt)}
+.inline-edit{background:#FFF8E6}
+.diff-del{text-decoration:line-through; color:#9B9B9B}
+.split{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.split .sf{min-height:520px}
+
+
+
+
+/* ---------- Setup, App Builder and Flow Builder (step 6) ---------- */
+.om{display:grid; grid-template-columns:190px minmax(0,1fr); gap:12px}
+.om-nav{background:#fff; border:1px solid var(--sf-line); border-radius:4px; padding:6px 0; font-size:12.5px; align-self:start}
+.om-nav div{padding:7px 12px; color:var(--sf-ink)}
+.om-nav div.on{background:var(--sf-brand-lt); border-left:3px solid var(--sf-brand-dk); font-weight:600; padding-left:9px}
+.om-crumb{font-size:12px; color:var(--sf-muted); margin-bottom:6px}
+.ab-bar{display:flex; align-items:center; gap:10px; background:#16325C; color:#fff; padding:8px 12px; font-size:12.5px; border-radius:4px 4px 0 0}
+.ab-bar *{color:#fff}
+.ab-bar .btn{color:var(--sf-brand); background:#fff}
+.ab-bar .btn.brand{background:var(--sf-brand); color:#fff; border-color:#fff}
+.ab{display:grid; grid-template-columns:150px minmax(0,1fr) 250px; border:1px solid var(--sf-line2); border-top:0; background:#fff; min-height:380px}
+.ab-pal{border-right:1px solid var(--sf-line); padding:8px; font-size:11.5px; color:var(--sf-muted)}
+.ab-pal div{padding:5px 6px; border:1px solid var(--sf-line); border-radius:3px; margin-bottom:4px; background:#FAFAF9; color:var(--sf-ink)}
+.ab-canvas{background:#F3F3F3; padding:12px; font-size:12px}
+.ab-sec{background:#fff; border:1px dashed #A0A0A0; border-radius:4px; padding:8px 10px; margin-bottom:8px}
+.ab-sec.sel{border:2px solid var(--sf-brand); box-shadow:0 0 0 3px rgba(1,118,211,.15)}
+.ab-sec h6{margin:0 0 6px; font-size:12px; display:flex; gap:6px; align-items:center}
+.ab-sec .fl{display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; color:var(--sf-muted)}
+.eye{font-size:10.5px; font-weight:700; color:#fff; background:#706E6B; border-radius:3px; padding:1px 5px}
+.ab-props{border-left:1px solid var(--sf-line); padding:10px; font-size:12px}
+.ab-props h6{margin:0 0 8px; font-size:12.5px}
+.ab-props .flt{border:1px solid var(--sf-line2); border-radius:4px; padding:7px 8px; background:var(--sf-brand-lt); margin-top:6px}
+.fb-bar{display:flex; align-items:center; gap:10px; background:#fff; border:1px solid var(--sf-line2); padding:8px 12px; font-size:12.5px; border-radius:4px 4px 0 0}
+.fb-bar .t{flex:1}
+.fb{display:grid; grid-template-columns:minmax(0,1fr) 0; border:1px solid var(--sf-line2); border-top:0; background:#F5F7FA; min-height:430px; background-image:radial-gradient(#D8DDE6 1px, transparent 1px); background-size:16px 16px}
+.fb.panel{grid-template-columns:minmax(0,1fr) 280px}
+.fb-canvas{padding:14px; display:flex; flex-direction:column; align-items:center; font-size:11.5px}
+.fe{background:#fff; border:1px solid var(--sf-line2); border-radius:6px; padding:6px 10px; display:flex; gap:8px; align-items:center; min-width:200px; box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.fe .ic{width:20px; height:20px; border-radius:4px; display:grid; place-items:center; color:#fff; font-size:10px; font-weight:700; flex:none}
+.fe .ic *{color:#fff}
+.fe.sel{border:2px solid var(--sf-brand)}
+.fline{width:2px; height:14px; background:#9AA4B2}
+.fbranches{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; border-top:2px solid #9AA4B2; padding-top:10px; margin-top:0}
+.fbr{display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px}
+.fbr .lbl{background:#fff; border:1px solid var(--sf-line2); border-radius:10px; padding:1px 7px}
+.fbr.new .lbl{background:#FFF3DC; border-color:#E0A23A; font-weight:700}
+.fbr .fe{min-width:0; padding:4px 7px; font-size:10.5px}
+.fb-panel{border-left:1px solid var(--sf-line2); background:#fff; padding:12px; font-size:12px}
+.fb-panel h6{margin:0 0 8px; font-size:13px}
+.cond{border:1px solid var(--sf-line2); border-radius:4px; padding:6px 8px; margin-top:6px; background:#FAFAF9}
+.cond.new{background:#FFF3DC; border-color:#E0A23A}
+.formula{font-family:Consolas, Menlo, monospace; font-size:11.5px; background:#F3F3F3; border:1px solid var(--sf-line); border-radius:4px; padding:8px 10px; white-space:pre-wrap; line-height:1.5}
+.chk{display:inline-block; width:14px; height:14px; border:1.5px solid #888; border-radius:3px; vertical-align:-2px; margin-right:6px; background:#fff}
+.chk.on{background:var(--sf-brand); border-color:var(--sf-brand); position:relative}
+.chk.on::after{content:"✓"; color:#fff; font-size:10px; position:absolute; left:2px; top:-1px}
+.plan-row{display:grid; grid-template-columns:22px 1fr 120px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--sf-line); font-size:12.5px}
+.f.err{background:var(--sf-red-lt)}
+.f.err .l{color:var(--sf-red)}
+.path span.pick{outline:2px solid var(--sf-brand); outline-offset:-2px; background:#fff; color:var(--sf-brand-dk); font-weight:600}
+.badge.add{background:#FFF0D6; color:#8A4B00}
+.pipe{display:grid; grid-template-columns:1fr 60px 1fr; gap:0; align-items:stretch}
+.pipe .env{background:#fff; border:1px solid var(--sf-line2); border-radius:6px; padding:10px 12px}
+.pipe .env h6{margin:0 0 6px; font-size:13px}
+.pipe .arrow{display:grid; place-items:center; font-size:22px; color:var(--sf-weak)}
+.step-row{display:grid; grid-template-columns:22px 1fr 110px; gap:8px; padding:7px 0; border-bottom:1px solid var(--sf-line); font-size:12.5px; align-items:center}
+.cgrid td:first-child{width:28px}
+@media (prefers-color-scheme: dark){ .badge.add{background:#3A2D17; color:#F2C27A} }
+
+
+/* ---------- Claude workspace (enterprise AI tool, outside Salesforce) ---------- */
+.cl{display:grid; grid-template-columns:190px minmax(0,1fr) 380px; min-height:520px; background:#FAF9F5; color:#1F1E1D; font-size:12.5px}
+.cl *{color:inherit}
+.cl-side{border-right:1px solid #E5E2DA; padding:12px; background:#F3F1EA}
+.cl-side .pj{font-weight:700; margin:0 0 8px}
+.cl-side .kn{font-size:11.5px; color:#6B675E; margin:10px 0 4px; font-weight:600}
+.cl-side .fl{background:#fff; border:1px solid #E5E2DA; border-radius:6px; padding:5px 7px; margin-bottom:5px; font-size:11.5px}
+.cl-chat{padding:14px 16px; display:flex; flex-direction:column; gap:10px}
+.cl-u{align-self:flex-end; background:#EDE9DF; border-radius:12px; padding:9px 12px; max-width:85%}
+.cl-a{line-height:1.55}
+.cl-a p{margin:0 0 6px}
+.cl-a ul{margin:4px 0 6px; padding-left:18px}
+.cl-in{margin-top:auto; border:1px solid #DAD6CC; border-radius:12px; background:#fff; padding:10px 12px; color:#8A867C}
+.cl-art{border-left:1px solid #E5E2DA; background:#fff; padding:14px 16px; overflow:hidden}
+.cl-art h6{margin:0 0 2px; font-size:14px}
+.cl-art .ver{font-size:11px; color:#8A867C; margin-bottom:10px}
+.cl-art h7{display:block; font-weight:700; font-size:12px; margin:10px 0 4px}
+.cl-art table{width:100%; border-collapse:collapse; font-size:11.5px}
+.cl-art td,.cl-art th{border-bottom:1px solid #EEE; padding:3px 4px; text-align:left; vertical-align:top}
+.cl-chip{display:inline-block; border:1px solid #CFCAC0; border-radius:14px; padding:5px 10px; background:#fff; margin:2px 4px 2px 0}
+.cl-file{display:inline-block; font-size:11.5px; border:1px solid #DAD6CC; background:#fff; border-radius:6px; padding:3px 8px; margin:0 4px 4px 0}
+.badge.claude{background:#F3E9DF; color:#8A4A1E}
+@media (prefers-color-scheme: dark){ .badge.claude{background:#3A2A1E; color:#F0C7A0} }
+
+/* toggle switch */
+.tgl{width:34px; height:18px; border-radius:9px; background:#C9C9C9; position:relative; display:inline-block; flex:none}
+.tgl i{position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; display:block}
+.tgl.on{background:var(--sf-brand)}
+.tgl.on i{left:18px}
+/* ---------- layer toggles + presenter badges ---------- */
+.feat-toggles{display:flex; gap:8px; align-items:center; width:100%; justify-content:flex-end; font-size:13px; color:var(--muted)}
+.ft{display:flex; gap:6px; align-items:center; padding:5px 10px; border-radius:999px; border:1px solid var(--line); cursor:pointer; color:var(--ink); background:var(--surface)}
+.ft input{accent-color:var(--accent); margin:0}
+.ft.iag{border-color:#7FB3E6}.ft.ai{border-color:#B79AF0}
+.badge{display:inline-block; font-size:12px; font-weight:650; padding:3px 9px; border-radius:999px; margin:0 0 10px}
+.badge.iag{background:#E1EEFB; color:#0B4F8A}
+.badge.ai{background:#EEE6FC; color:#5A1BA9}
+@media (prefers-color-scheme: dark){ .badge.iag{background:#16324D; color:#9CCBF5} .badge.ai{background:#2E2147; color:#CFB6FA} }
+.prec{font-size:13px; line-height:1.5; margin:0 0 14px; padding:10px 12px; border-radius:8px; background:var(--ok-soft); border-left:3px solid var(--ok)}
+.prec b{display:block; font-size:12.5px; color:var(--ok); font-weight:650; margin-bottom:2px}
+.pbuild{font-size:13px; line-height:1.5; margin:0 0 14px; padding:10px 12px; border-radius:8px; border:1px dashed var(--line)}
+.pbuild b{display:block; font-size:12.5px; color:var(--muted); font-weight:600; margin-bottom:2px}
+.plic{font-size:12px; color:var(--muted); margin:-6px 0 14px}
+
+/* ---------- Agentforce side panel (illustrative) ---------- */
+.sf{position:relative}
+.sf-body{position:relative}
+.with-agent{display:grid; grid-template-columns:minmax(0,1fr) 350px; gap:12px; align-items:start}
+.with-agent .main-col{min-width:0}
+.af{background:#fff; border:1px solid var(--sf-line2); border-radius:6px; display:flex; flex-direction:column; min-height:470px; box-shadow:0 4px 14px rgba(0,0,0,.12); position:sticky; top:0}
+.af-h{display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--sf-line); font-weight:700; font-size:13.5px}
+.af-h .x{margin-left:auto; color:var(--sf-weak); font-weight:400}
+.af-logo{width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#0176D3,#9050E9); color:#fff; display:grid; place-items:center; font-size:11px; flex:none}
+.af-logo *{color:#fff}
+.af-sub{font-weight:400; color:var(--sf-weak); font-size:11.5px}
+.af-msgs{padding:12px; flex:1; display:flex; flex-direction:column; gap:10px; font-size:12.5px; line-height:1.45}
+.af-u{align-self:flex-end; background:var(--sf-brand); color:#fff; border-radius:12px 12px 2px 12px; padding:8px 11px; max-width:88%}
+.af-u *{color:#fff}
+.af-a{align-self:stretch; background:#F4F6FA; border-radius:12px 12px 12px 2px; padding:10px 12px}
+.af-a p{margin:0 0 6px}
+.af-a ul,.af-a ol{margin:4px 0 6px; padding-left:18px}
+.af-a li{margin-bottom:4px}
+.af-card{background:#fff; border:1px solid var(--sf-line); border-radius:6px; padding:8px 10px; margin-top:8px}
+.af-card h6{margin:0 0 3px; font-size:12.5px}
+.af-chips{display:flex; flex-direction:column; gap:6px; margin-top:4px}
+.af-chip{border:1px solid #9CC3EE; color:var(--sf-brand-dk); border-radius:14px; padding:6px 11px; font-size:12px; background:#fff; align-self:flex-start}
+.af-file{display:inline-flex; gap:6px; align-items:center; font-size:11.5px; border:1px solid var(--sf-line2); border-radius:4px; padding:3px 8px; background:#fff; margin:0 4px 4px 0}
+.af-act{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
+.af-used{font-size:11px; color:var(--sf-weak); margin-top:6px}
+.af-in{border-top:1px solid var(--sf-line); padding:10px 12px}
+.af-in .input{color:var(--sf-weak)}
+.af-note{font-size:10.5px; color:var(--sf-weak); margin-top:6px}
+.af-ico{width:20px; height:20px; border-radius:50%; display:grid; place-items:center; font-size:11px; color:#9050E9; border:1.5px solid #B79AF0}
+.af-ico.on{background:linear-gradient(135deg,#0176D3,#9050E9); color:#fff; border-color:transparent}
+table.mini{width:100%; border-collapse:collapse; font-size:11.5px; margin-top:4px}
+table.mini th{text-align:left; color:var(--sf-muted); font-weight:600; padding:3px 4px; border-bottom:1px solid var(--sf-line)}
+table.mini td{padding:4px; border-bottom:1px solid var(--sf-line); vertical-align:top}
+.conf{display:inline-block; font-size:10.5px; font-weight:700; padding:1px 6px; border-radius:8px}
+.conf.h{background:var(--sf-green-lt); color:var(--sf-green)}.conf.m{background:var(--sf-warn-lt); color:var(--sf-warn)}.conf.l{background:#F3F3F3; color:var(--sf-muted)}
+
+/* ---------- In-App Guidance prompts ---------- */
+.iag-float{position:absolute; top:36px; left:50%; transform:translateX(-50%); width:430px; max-width:calc(100% - 24px); background:#fff; border-radius:8px; box-shadow:0 14px 36px rgba(0,0,0,.3); overflow:hidden; z-index:20}
+.iag-hero{height:104px; background:linear-gradient(120deg,#014486,#0176D3 60%,#3BA7E8); position:relative; overflow:hidden}
+.iag-hero i{position:absolute; border-radius:50%; background:rgba(255,255,255,.14); display:block}
+.iag-hero span{position:absolute; left:18px; bottom:14px; color:#fff; font-size:13px; font-weight:600; letter-spacing:.01em}
+.iag-b{padding:14px 16px 12px}
+.iag-step{font-size:11px; color:var(--sf-weak)}
+.iag-b h6{font-size:16px; margin:2px 0 6px; line-height:1.3}
+.iag-b p{margin:0; font-size:12.5px; line-height:1.5; color:#3E3E3C}
+.iag-f{display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; font-size:12px}
+.iag-target{position:absolute; width:300px; z-index:20; background:#fff; border-radius:8px; box-shadow:0 10px 28px rgba(0,0,0,.28); padding:12px 14px; border-top:4px solid var(--sf-brand-dk)}
+.iag-target .iag-b{padding:0}
+.iag-arr{position:absolute; width:14px; height:14px; background:#fff; transform:rotate(45deg); box-shadow:-2px -2px 4px rgba(0,0,0,.06)}
+.iag-dock{position:absolute; right:12px; top:12px; width:330px; background:#fff; border-radius:8px; box-shadow:0 10px 28px rgba(0,0,0,.25); z-index:20; overflow:hidden; border:1px solid var(--sf-line)}
+.iag-dock .dk-h{background:var(--sf-brand-dk); color:#fff; padding:9px 12px; font-size:12.5px; font-weight:700; display:flex; justify-content:space-between}
+.iag-dock .dk-h *{color:#fff}
+.iag-dock ol{margin:6px 0 0; padding-left:18px; font-size:12.5px}
+.iag-dock li{margin-bottom:5px}
+[data-anchor].hl-anchor{box-shadow:0 0 0 2px #0176D3; border-radius:4px}
+.g-icons .hl-anchor{border-radius:50% !important; box-shadow:0 0 0 3px #0176D3}
+@media (max-width: 1100px){ .with-agent{grid-template-columns:1fr} }
+
+@media (max-width: 1100px){ .ct-main{grid-template-columns:1fr} .presenter{position:static} .split{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<header class="ct-top">
+  <div><h1>SPX live demo: clickable prototype</h1><div class="sub">Click the highlighted element in Salesforce to move on. The presenter panel tells you what to do and what to say.</div></div>
+  <nav class="ct-tabs" id="tabs" aria-label="Scenarios"></nav>
+  <div class="feat-toggles" role="group" aria-label="Optional layers"><span class="ft-l">Show:</span><label class="ft ai"><input type="checkbox" id="tgAi" checked> Agentforce</label><label class="ft iag"><input type="checkbox" id="tgIag" checked> In-App Guidance</label></div>
+</header>
+<div class="ct-main">
+  <div class="stage" id="stage" aria-live="polite"></div>
+  <aside class="presenter" id="presenter"></aside>
+</div>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="pen" viewBox="0 0 16 16"><path d="M11.2 2.2l2.6 2.6-8.3 8.3H2.9v-2.6z" fill="none" stroke="#706E6B" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="lock" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1.2" fill="#706E6B"/><path d="M5.2 7V5.2a2.8 2.8 0 015.6 0V7" fill="none" stroke="#706E6B" stroke-width="1.5"/></symbol>
+</svg>
+<script>
+/* ================= helpers ================= */
+const AV={AM:'#706E6B',DR:'#0B827C',MH:'#5867E8',PN:'#014486',SO:'#5A1BA9',TB:'#0176D3',KA:'#BA0517',LD:'#9050E9'};
+const STD=['Home','Projects','Leads','Accounts','Contacts','Opportunities','Quotes','Reports','Dashboards'];
+function frame(o, body){
+  const [ini,name]=o.who.split('|');
+  let tabs=STD, app='HVAC Segment', active=o.tab;
+  if(o.tab&&o.tab.startsWith('Setup')){tabs=['Home','Object Manager','Users','Flows','Custom Metadata']; app='Setup'; active=o.tab.split(':')[1]||'Home';}
+  if(o.tab==='Brand onboarding'||o.tab==='Template deviations'){tabs=['Home','Brand onboarding','Template deviations','Projects','Reports'];}
+  if(o.app){app=o.app; tabs=o.tabs; active=o.tab;}
+  let h=`<div class="sf${o.cls?' '+o.cls:''}"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">https://${o.url}</div><div class="who-chip"><span class="av" style="background:${AV[ini]||'#014486'}">${ini}</span>${name}</div></div>`;
+  if(o.bookmarks) h+=`<div class="bookmarks">${o.bookmarks}</div>`;
+  if(o.env==='sandbox') h+=`<div class="sandbox-bar"><span>Sandbox: ${o.sbx||'cfdev'}</span><span>Logged in as Sam Okafor &nbsp;|&nbsp; Log out</span></div>`;
+  if(o.env==='prod') h+=`<div class="prod-bar">Production org, Cooling and 3 other brands live</div>`;
+  if(o.loginAs) h+=`<div class="loginas-bar"><span>Logged in as ${o.loginAs} (via Login As)</span><a ${o.logoutHot?'data-go':''}>Log out as ${o.loginAs}</a></div>`;
+  h+=`<div class="g-head"><span class="logo">SPX</span><div class="search">Search...</div><div class="g-icons"><span></span><span ${o.bell?'class="bell-dot" '+(o.bellHot?'data-go':''):''}></span><span></span></div>${o.bellDrop||''}</div>`;
+  h+=`<div class="app-nav"><span class="waffle">${'<i></i>'.repeat(9)}</span><span class="app-name">${app}</span>${tabs.map(t=>`<span class="tab${t===active?' on':''}" ${o.tabHot===t?'data-go':''}>${t}</span>`).join('')}</div>`;
+  h+=`<div class="sf-body"><!--B-->${body}<!--/B--></div>${o.utility||''}</div>`;
+  return h;
+}
+function F(str, one){
+  return `<div class="fields"${one?' style="grid-template-columns:1fr"':''}>`+str.split('||').map(p=>{
+    let [l,v='']=p.split('::'); let lock=false, hot=false, ed=false;
+    if(v.endsWith(' ^lock')){lock=true; v=v.slice(0,-6);}
+    if(v.endsWith(' ^hot')){hot=true; v=v.slice(0,-5);}
+    if(v.endsWith(' ^edit')){ed=true; v=v.slice(0,-6);}
+    const val=v.startsWith('@')?`<span class="lk">${v.slice(1)}</span>`:(v||'&nbsp;');
+    return `<div class="f${ed?' inline-edit':''}" ${hot?'data-go':''}><div><span class="l">${l}</span><span class="v">${val}</span></div><svg class="${lock?'lock':'pen'}"><use href="#${lock?'lock':'pen'}"/></svg></div>`;
+  }).join('')+`</div>`;
+}
+function HL(ico,cls,obj,name,btns,flds){
+  return `<div class="hl"><div class="hl-top"><span class="ico lg ${cls}">${ico}</span><div class="t"><div class="obj">${obj}</div><div class="nm">${name}</div></div><div class="btn-grp">${btns||''}</div></div><div class="hl-fields">${(flds||[]).map(([a,b])=>`<div>${a}<b>${b}</b></div>`).join('')}</div></div>`;
+}
+const B=(t,o={})=>`<span class="btn${o.brand?' brand':''}" ${o.hot?'data-go':''}>${t}</span>`;
+function PATH(st,cur){return `<div class="card"><div class="path">${st.map((s,i)=>`<span class="${i<cur?'done':i===cur?'cur':''}">${s}</span>`).join('')}</div></div>`;}
+const GOLD=['1.0 Prospect &amp; market ID','2.0 Needs analysis &amp; qualify','3.0 Spec &amp; influence','4.0 Solution &amp; proposal','5.0 Negotiate &amp; close','Closed'];
+const PSTG=['Identified','Qualified','In pursuit','Partially awarded','Resolved'];
+function CARD(title,inner,o={}){return `<div class="card"><div class="card-h">${o.ico?`<span class="ico ${o.cls}">${o.ico}</span>`:''}<h5>${title}</h5>${o.right||''}</div>${o.raw?inner:`<div class="card-b">${inner}</div>`}</div>`;}
+const TOAST=(m,t='')=>`<div class="toast ${t}">${m}</div>`;
+function TILE(l,v,s,o={}){return `<div class="tile"${o.style?` style="${o.style}"`:''}><div class="l">${l}</div><div class="v${o.red?' red':''}"${o.vstyle?` style="${o.vstyle}"`:''}>${v}</div><div class="s">${s||''}</div></div>`;}
+function MODAL(title,body,foot,o={}){return `<div class="modal-wrap"><div class="modal${o.cls?' '+o.cls:''}"${o.w?` style="max-width:${o.w}px"`:''}><div class="modal-h">${title}</div><div class="modal-b">${body}</div><div class="modal-f">${foot}</div></div></div>`;}
+const SC=[];
+/* Shared persona labels (RFP terminology: Rep/RSM → Brand Sales Leader → Segment) */
+const WHO={sam:'SO|Sam Okafor, Segment CRM owner',dana:'DR|Dana Reyes, Ingénia Rep (RSM)',marcus:'MH|Marcus Hill, Ingénia Brand Sales Leader',priya:'PN|Priya Natarajan, Segment Sales Leader',tom:'TB|Tom Brennan, Cooling Rep (RSM)',kim:'KA|Kim Alvarez, Chicago Fan Rep (RSM)'};
+const PHASES=['Planning','Schematic Design','Design Development','Construction Documents','Bid','Awarded'];
+
+
+/* ======================= SCENARIO 1 ======================= */
+const sam={tab:'Home',url:'spx-hvac.lightning.force.com/lightning/page/home',who:WHO.sam};
+const dana={tab:'Home',url:'spx-hvac.lightning.force.com/lightning/page/home',who:WHO.dana};
+const leadUrl='spx-hvac.lightning.force.com/lightning/r/Lead/00Q8c00001Wst/view';
+const homeSam=CARD('Strategic large projects (over $100M)',`<table class="dt"><tr><th>Project</th><th>Vertical</th><th class="num">Est. construction value</th><th>Brands</th></tr>
+<tr><td class="lk">Lakemont Health East Tower Expansion</td><td>Healthcare</td><td class="num">$186.0M</td><td>3</td></tr>
+<tr><td class="lk">Northpoint Data Center Campus, Building C</td><td>Data Center</td><td class="num">$310.0M</td><td>2</td></tr>
+<tr><td class="lk">Riverside Commons Multifamily Tower</td><td>Multifamily</td><td class="num">$140.0M</td><td>2</td></tr>
+<tr><td class="lk">Buckeye State University Research Building</td><td>Education</td><td class="num">$120.0M</td><td>2</td></tr></table>`,{ico:'P',cls:'i-proj',raw:true});
+const util=(open)=>`<div class="utility"><span><b>Demo control</b></span><span>Notes</span><span>Recent items</span>${open?`<div class="util-panel">${CARD('Demo control',`<p style="margin:0 0 10px; font-size:12.5px">4 ConstructConnect intake rows are staged and ready.</p><div style="display:flex; gap:8px"><span class="btn brand" data-go>Run feed now</span><span class="btn">Reset demo data</span></div>`)}</div>`:''}</div>`;
+const intake=`${TOAST('<b>Automated ConstructConnect sync.</b> 4 projects received: 2 matched existing projects, 1 new strategic project created with 3 brand leads, 1 held below routing thresholds.')}
+${CARD('Project intake: today\'s ConstructConnect load',`<table class="dt"><tr><th>Intake #</th><th>Project name</th><th>Vertical</th><th>Location</th><th class="num">Est. construction value</th><th>Match result</th><th>Project</th><th>Brand leads</th></tr>
+<tr class="new"><td class="lk">CC-88412</td><td><b>Westfield Regional Medical Center</b></td><td>Healthcare</td><td>Dublin, OH</td><td class="num">$148.0M</td><td><span class="pill b">New project created</span></td><td class="lk">P-01042</td><td>Ingénia, Cooling, Patterson-Kelley</td></tr>
+<tr><td class="lk">CC-88409</td><td>Lakemont Health East Tower Expansion</td><td>Healthcare</td><td>Columbus, OH</td><td class="num">$186.0M</td><td><span class="pill g">Matched, bid date updated</span></td><td class="lk">P-00977</td><td>Already in pursuit</td></tr>
+<tr><td class="lk">CC-88422</td><td>Buckeye State University Research Building</td><td>Education</td><td>Columbus, OH</td><td class="num">$120.0M</td><td><span class="pill g">Matched to rep-entered project</span></td><td class="lk">P-01011</td><td>Already in pursuit</td></tr>
+<tr><td class="lk">CC-88424</td><td>Riverbend Apartments</td><td>Multifamily</td><td>Dayton, OH</td><td class="num">$112.0M</td><td><span class="pill">Planning phase: held until Schematic Design</span></td><td>None</td><td>None</td></tr></table>`,{ico:'≡',cls:'i-list',raw:true})}`;
+/* Rep home page: standard Report Chart components and Today's Tasks only */
+const chart=(title,rows,o={})=>CARD(`${title}`,rows.map(([l,v,w,c,hot])=>`<div class="hbar" style="grid-template-columns:${o.lw||170}px 1fr 64px" ${hot?'data-go':''}><span>${l}</span><span class="track"><i style="width:${w}%; background:${c||'#0176D3'}"></i></span><span class="val">${v}</span></div>`).join('')+`<p class="why" style="margin:6px 0 0">${o.foot||'View Report'}</p>`);
+const homeDana=`<div class="row c2">`+chart('My Pipeline by Stage',[['1.0 Prospect','$1.4M',27],['2.0 Qualify','$3.2M',61],['3.0 Spec and Influence','$5.25M',100],['4.0 Solution and Proposal','$0.65M',12]])
+ +chart('Leads',[['Westfield RMC – Ingénia','$2.7M',100,'#0B827C',1],['Grove City Surgical Center – Ingénia','$1.1M',41,'#0B827C']],{lw:220,foot:'Estimated brand potential · View Report'})+`</div><div class="row c2">`
+ +chart('Opportunities',[['Lakemont East Tower – Ingénia','$3.35M',100],['Buckeye State University – Ingénia','$3.2M',96],['Columbus Children\'s Research – Ingénia','$1.9M',57]],{lw:230,foot:'Top open opportunities by amount · View Report'})
+ +CARD("Today's Tasks",'<div class="feed"><div>Review East Tower AHU schedule revisions with Kessler MEP<div class="when">Today</div></div><div>Follow up on the Grandview quote with Midwest Mechanical<div class="when">Today</div></div></div>')+`</div>`;
+const leadsReport=`<div class="om-crumb">Reports › My New Leads</div>`+HL('R','i-dash','Report: Leads','My New Leads',B('Edit')+B('Refresh'),[['Filtered by','My leads · Lead Status equals New'],['Total records','2']])
+ +CARD('Report results',`<table class="dt"><tr><th>Name</th><th>Company</th><th>Brand</th><th>Vertical</th><th class="num">Est. Brand Potential</th><th>Lead Status</th></tr>
+<tr><td><span class="lk" data-go>Westfield RMC – Ingénia</span></td><td>Lakemont Health</td><td>Ingénia</td><td>Healthcare</td><td class="num">$2,700,000</td><td>New</td></tr>
+<tr><td class="lk">Grove City Surgical Center – Ingénia</td><td>Grove City Surgical Partners</td><td>Ingénia</td><td>Healthcare</td><td class="num">$1,100,000</td><td>New</td></tr>
+<tr><td colspan="4"><b>Total (2)</b></td><td class="num"><b>$3,800,000</b></td><td></td></tr></table>`,{raw:true});
+const bellDrop=(hot)=>`<div class="bell-drop"><div class="it" style="font-weight:700">Notifications</div><div class="it" ${hot?'data-go':''}><b>New strategic healthcare project in your territory</b><br>Westfield Regional Medical Center, $148.0M estimated construction value, routed to you as an Ingénia lead<div class="when">Just now</div></div><div class="it">Lakemont East Tower: Cooling quote submitted through QTC<div class="when">Oct 3</div></div></div>`;
+const leadPage=(convHot)=>HL('L','i-lead','Lead · Westfield RMC, Ingénia','Rachel Tran',B('Follow')+B('Edit')+B('Convert',{brand:1,hot:convHot}),[['Title','Director of Facilities Planning'],['Company','Lakemont Health'],['Brand','Ingénia'],['Lead source','ConstructConnect'],['Lead owner','Dana Reyes'],['Est. brand potential','$2,700,000']])
+ +`<div class="card"><div class="path"><span class="done">Routed</span><span class="cur">Contacted</span><span>Qualifying</span><span>Converted</span></div></div>`
+ +`<div class="row c2">`+CARD('Details',`<div class="sec">Project intelligence</div>${F('Project::@P-01042 Westfield Regional Medical Center||Vertical::Healthcare||Estimated construction value::$148,000,000 ^lock||Project phase::Schematic Design ^lock||Estimated bid date::Jan 2028 ^lock||Engineer of record::@Kessler MEP Engineers||Source record::CC-88412 ^lock')}
+<div class="sec">Brand potential (recommended from project intelligence)</div>${F('Estimated Ingénia potential::$2,700,000||Basis::$148M ÷ ~$750 per sq ft ≈ 197,000 sq ft × ~1.2 cfm per sq ft ≈ 237,000 cfm × ~$11.25 per cfm (published custom AHU range $4–12 per cfm) ^lock')}
+<div class="sec">Routing</div>${F('Territory::Ohio Valley||Routing rule::Healthcare, Ohio Valley, cAHU fit ^lock||Ingénia routing threshold::Met: $148.0M is over $25M ^lock||Strategic large project (over $100M)::Yes ^lock||Segment coordinator::@Alex Moreau ^lock||First contact with engineer::Dana Reyes (set by segment coordinator) ^lock')}`)
+ +CARD('Activity','<div class="feed"><div><b>Assigned to you</b> by segment routing rule <i>Ingénia – Ohio Valley</i><div class="when">10:02 AM</div></div><div><b>Sibling leads routed</b> to Tom Brennan (Cooling) and Lena Duval (Patterson-Kelley) for the same project<div class="when">10:02 AM</div></div><div><b>Strategic large project</b> (over $100M): Alex Moreau assigned as segment coordinator and every brand leader notified<div class="when">10:02 AM</div></div><div><b>Alex Moreau</b> set you as first contact with Kessler MEP for all three brands<div class="when">10:15 AM</div></div></div>')+`</div>`;
+const conv=(existing)=>MODAL('Convert Lead',`
+<div class="conv"><div class="h">Account</div>
+ <div class="opt${existing?'':' sel'}"><span class="radio"></span>Create new<div class="input">Lakemont Health</div></div>
+ <div class="opt${existing?' sel':''}" ${existing?'':'data-go'}><span class="radio"></span>Choose existing<div class="input">Lakemont Health · Owner · Columbus, OH</div><div class="why" style="margin-top:4px">1 account match found by the segment matching rule</div></div></div>
+<div class="conv"><div class="h">Contact</div><div class="opt sel"><span class="radio"></span>Create new<div class="input">Rachel Tran</div></div><div class="opt"><span class="radio"></span>Choose existing<div class="input">Search for matching contacts</div><div class="why" style="margin-top:4px">0 matches from the segment contact matching rule</div></div></div>
+<div class="conv"><div class="h">Opportunity</div><div class="opt sel"><span class="radio"></span>Create new<div class="input">Westfield RMC – Ingénia – Custom AHU</div><div class="why" style="margin-top:4px">Renamed from the default. Record type: Golden Template – Project Sale. Amount starts at the $2.7M recommended potential.</div></div><div class="opt"><span class="radio"></span>Choose existing<div class="input">0 opportunity matches</div></div></div>
+<div class="conv"><div class="h">Record owner</div><div><div class="input">Dana Reyes</div></div><div></div></div>`,B('Cancel')+B('Convert',{brand:1,hot:existing}));
+const converted=MODAL('Your lead has been converted',`<div class="row c3">
+${CARD('Account','<b class="lk">Lakemont Health</b><div class="why">Existing account, Owner, Columbus, OH</div>',{ico:'A',cls:'i-acc'})}
+${CARD('Contact','<b class="lk">Rachel Tran</b><div class="why">Director of Facilities Planning</div>',{ico:'C',cls:'i-con'})}
+<div data-go>${CARD('Opportunity','<b class="lk">Westfield RMC – Ingénia – Custom AHU</b><div class="why">Golden Template – Project Sale, stage 1.0</div>',{ico:'O',cls:'i-opp'})}</div></div>`,B('Go to Leads'),{w:880});
+const s1opp=(o={})=>TOAST('Lead converted. Account, contact and opportunity are linked to project P-01042.')
+ +HL('O','i-opp','Opportunity · Golden Template – Project Sale','Westfield RMC – Ingénia – Custom AHU',B('Follow')+B('New quote')+B('Edit'),[['Account','Lakemont Health'],['Close date','Mar 31, 2028'],['Amount','$2,700,000'],['Brand','Ingénia'],['Owner','Dana Reyes']])
+ +`<div class="card"><div class="path">${GOLD.map((s,i)=>`<span class="${i===0?'cur':''}">${s}</span>`).join('')}</div><div class="guide"><div><h6>Guidance for success</h6><ul><li>Confirm ICP fit and decide pursue or no-bid within 10 days.</li><li>Check brand participation on the project before the first owner meeting.</li></ul></div></div></div>`
+ +`<div class="row c2">`+CARD('Details',F('Project::@P-01042 Westfield Regional Medical Center||Brand::Ingénia ^lock||Business unit::cAHU ^lock||Vertical::Healthcare||Amount::$2,700,000 (from recommended potential)||BOD status::Not yet||Rep firm::@Buckeye Air Systems||Lead source::ConstructConnect ^lock'))
+ +CARD('Other brands on this project',`<table class="dt"><tr><th>Brand</th><th>Status</th></tr><tr><td>Ingénia</td><td><span class="pill b">1.0 Prospect</span></td></tr><tr><td>Cooling</td><td><span class="pill">Lead, routed</span></td></tr><tr><td>Patterson-Kelley</td><td><span class="pill">Lead, routed</span></td></tr></table><p class="why" style="margin:8px 0 0">Brand and status only. Opportunity detail stays with the owning brand.</p>`,{ico:'P',cls:'i-proj'})+`</div>`;
+SC.push({key:'s1',label:'1 Lead from feed',title:'Capture, route and convert a project lead',screens:[
+ {html:frame({...sam,tab:'Projects',url:'spx-hvac.lightning.force.com/lightning/o/Project_Intake__c/list'},intake),do:'Walk the four outcomes of the latest feed, then switch to Dana.',rec:'Review each brand\'s routing thresholds quarterly against conversion rates, and name one first contact per strategic project so three brands don\'t call the same engineer separately.',watch:'Nobody pressed a button: the integration is automated. Don\'t state a sync time or frequency; that is a design decision for SPX. In the demo org, load the intake rows before the session.',say:'No one ran anything. The ConstructConnect integration is automated, and this is what it brought in. One new project, Westfield Regional Medical Center: $148M, so a strategic large project, and relevant to three brands, so Ingénia, Cooling and Patterson-Kelley each got a lead. Lakemont East Tower matched and was enriched. The university project matched one a rep had typed in by hand, so no duplicate. Riverbend is over $100M but still in Planning; leads route from Schematic Design, so it is held until the phase moves.',switchTo:'Switch to Dana\'s browser'},
+ {html:frame({...dana,bell:1},homeDana),do:'Click the Westfield bar on the Leads chart.',say:'Dana is an Ingénia RSM in Ohio Valley. Her home page is standard report charts and her tasks. The Westfield lead is already waiting for her; routing happened in seconds.'},
+ {html:frame({...dana,tab:'Reports',url:'spx-hvac.lightning.force.com/lightning/r/Report/00O8c000004LDS/view'},leadsReport),do:'Open the Westfield lead.',say:'The chart opens its report: her new leads, with the estimated brand potential for each.'},
+ {html:frame({...dana,tab:'Leads',url:leadUrl},leadPage(true)),do:'Point at the two values and the routing section, then click Convert.',say:'Two different numbers. $148M is the estimated construction value. $2.7M is the recommended Ingénia potential, calculated from floor area, airflow and published custom AHU costs, and Dana can adjust it. And because Westfield is over $100M, it is a strategic large project: a segment coordinator is already assigned and every brand leader has been told.'},
+ {html:frame({...dana,tab:'Leads',url:leadUrl},conv(false)),do:'Choose the existing Lakemont Health account.',say:'The standard conversion screen. Lakemont Health already exists as an Owner account, so we reuse it instead of creating a duplicate.'},
+ {html:frame({...dana,tab:'Leads',url:leadUrl},conv(true)),do:'Click Convert.',say:'The opportunity is created on the Golden Template record type. Project, brand, vertical and the recommended potential carry across.'},
+ {html:frame({...dana,tab:'Leads',url:leadUrl},converted),do:'Open the new opportunity.',say:'One account, one new contact, one opportunity.'},
+ {html:frame({...dana,tab:'Opportunities',url:'spx-hvac.lightning.force.com/lightning/r/Opportunity/0068c00000Wf2/view'},s1opp()),do:'Show the Path guidance and the "Other brands on this project" card.',say:'Stage 1.0 of the golden process, guidance at each stage, and Dana can already see Cooling and Patterson-Kelley are pursuing the same project.',end:true},
+]});
+
+/* ======================= SCENARIO 2: standard matching rules, duplicate rules and Merge Accounts ======================= */
+const erpAcc='spx-hvac.lightning.force.com/lightning/r/Account/0018c00003PK4/view';
+const erpAccPage=(o={})=>(o.merged?'':`<div class="card" style="border-color:#F5C67A"><div class="card-b" style="display:flex; align-items:center; gap:12px; font-size:13px"><span class="ico i-acc">!</span><div style="flex:1"><b>Potential duplicates</b><br>We found 2 potential duplicates of this account.</div>${B('View Duplicates',{brand:1,hot:o.viewHot})}</div></div>`)
+ +HL('A','i-acc','Account · ERP customer (Patterson-Kelley ERP)','ARDENT BLDRS INC',B('Edit'),[['Account source','Patterson-Kelley ERP'],['Billing city','Columbus, OH 43219'],['Phone','(614) 555-0190'],['Created by','Integration User']])
+ +`<div class="row c2">`+CARD('Details',F('Account name::ARDENT BLDRS INC||Account role::||Parent account::||Account source::Patterson-Kelley ERP ^lock'))+CARD('ERP references (1)',`<table class="dt"><tr><th>ERP reference</th><th>ERP system</th><th>Customer #</th><th>Terms</th><th class="num">Credit limit</th></tr><tr><td class="lk">PK-004417</td><td>Patterson-Kelley ERP</td><td>004417</td><td>Net 45</td><td class="num">$750,000</td></tr></table><p class="why" style="margin:8px 12px 10px">ERP-mastered fields on the cross-reference are read-only for everyone except the integration.</p>`,{ico:'X',cls:'i-xref',raw:true})
+ +`</div>`;
+const dupList=(sel)=>MODAL('Merge Accounts <span class="why" style="font-size:13px">Step 1 of 2: select the accounts to merge</span>',`<p style="margin:0 0 10px; font-size:13px">Potential duplicates of <b>ARDENT BLDRS INC</b>, found by the Standard Account Matching Rule.</p>
+<table class="dt cgrid"><tr><th></th><th>Account name</th><th>Account role</th><th>Billing address</th><th>Phone</th></tr>
+<tr class="new"><td><span class="chk on"></span></td><td><b>ARDENT BLDRS INC</b> <span class="why">(this account)</span></td><td></td><td>4100 Arlington Ln, Columbus, OH 43219</td><td>(614) 555-0190</td></tr>
+<tr ${sel?'class="new"':'data-go'}><td><span class="chk${sel?' on':''}"></span></td><td>Ardent Builders – Ohio Region</td><td>General Contractor</td><td>4100 Arlington Ln, Columbus, OH 43219</td><td>(614) 555-0190</td></tr>
+<tr><td><span class="chk"></span></td><td>Arden Mechanical</td><td>Mechanical Contractor</td><td>2250 Dublin Rd, Columbus, OH 43204</td><td>(614) 555-0177</td></tr></table>`,B('Cancel')+B('Next',{brand:1,hot:sel}),{w:860});
+const cmp=(f,a,b,pick)=>`<tr><td>${f}</td><td><span class="radio" style="${pick===0?'border:4px solid var(--sf-brand)':''}"></span>${a}</td><td><span class="radio" style="${pick===1?'border:4px solid var(--sf-brand)':''}"></span>${b}</td></tr>`;
+const mergeCmp=MODAL('Merge Accounts <span class="why" style="font-size:13px">Step 2 of 2: choose the master record and values</span>',`<table class="dt"><tr><th>Field</th><th>ARDENT BLDRS INC</th><th>Ardent Builders – Ohio Region</th></tr>
+${cmp('<b>Master record</b>','','Master',1)}${cmp('Account name','ARDENT BLDRS INC','Ardent Builders – Ohio Region',1)}${cmp('Account role','','General Contractor',1)}${cmp('Parent account','','Ardent Builders',1)}${cmp('Billing address','4100 Arlington Ln, Columbus, OH 43219','4100 Arlington Ln, Columbus, OH 43219',1)}${cmp('Phone','(614) 555-0190','(614) 555-0190',1)}</table>
+`,B('Back')+B('Next',{brand:1,hot:1}),{w:860});
+const mergeOk=MODAL('Merge Accounts?','<p style="margin:0; font-size:13px">The selected accounts will be merged into Ardent Builders – Ohio Region. Related records will be associated with the master record, and the other account will be moved to the Recycle Bin.</p>',B('Cancel')+B('Merge Accounts',{brand:1,hot:1}),{w:620});
+const ohioPage=TOAST('Accounts merged. ERP cross-reference PK-004417 now belongs to Ardent Builders – Ohio Region.')
+ +HL('A','i-acc','Account','Ardent Builders – Ohio Region',B('View Account Hierarchy',{hot:1})+B('Edit'),[['Account role','General Contractor'],['Parent account','Ardent Builders'],['Billing city','Columbus, OH 43219']])
+ +`<div class="row c2">`+CARD('ERP references (3)',`<table class="dt"><tr><th>ERP reference</th><th>Brand</th><th>ERP system</th><th>Customer #</th></tr><tr><td class="lk">QTC-118220</td><td>Cooling</td><td>QTC</td><td>118220</td></tr><tr><td class="lk">IN-20931</td><td>Ingénia</td><td>Ingénia ERP</td><td>20931</td></tr><tr class="new"><td class="lk">PK-004417</td><td>Patterson-Kelley</td><td>Patterson-Kelley ERP</td><td>004417</td></tr></table>`,{ico:'X',cls:'i-xref',raw:true})
+ +CARD('Field history: PK-004417',`<div class="feed"><div><b>Account</b> changed from ARDENT BLDRS INC to Ardent Builders – Ohio Region<div class="when">Merge by Sam Okafor, just now</div></div><div><b>Brand relationship</b> set to Ardent Builders · Patterson-Kelley<div class="when">Flow, just now</div></div><div><b>ERP fields</b> no changes since the last ERP load<div class="when">Integration user</div></div></div>`)+`</div>`;
+const hier=CARD('Account hierarchy: Ardent Builders',`<div class="tree"><div class="node"><b class="grow lk">Ardent Builders</b><span class="why">General Contractor · Global ultimate parent</span></div>
+<div class="node d1"><span class="grow lk">Ardent Builders – Ohio Region</span><span class="chip">Cooling · QTC 118220</span><span class="chip">Ingénia · IN-20931</span><span class="chip new">Patterson-Kelley · PK ERP 004417</span></div>
+<div class="node d1"><span class="grow lk">Ardent Builders – Great Lakes Region</span><span class="chip">Cooling · QTC 118904</span><span class="chip">TAMCO · T-7781</span></div>
+<div class="node d1"><span class="grow lk">Ardent Builders – Southeast Region</span><span class="chip">Cooling · QTC 120011</span></div></div>`,{ico:'A',cls:'i-acc',raw:true});
+const ucv=HL('A','i-acc','Account · Unified Customer View','Ardent Builders',B('View hierarchy')+B('Edit'),[['Customer type','General Contractor'],['Account owner','SPX'],['Tier','Strategic']])
+ +`<div class="row c3" style="margin-bottom:12px">${TILE('Open pipeline, all brands','$12.6M','')}${TILE('Brands active','4','')}${TILE('Strategic projects as GC','3','Over $100M')}</div>`
+ +CARD('Brand relationships (4)',`<table class="dt"><tr><th>Brand</th><th>ERP references</th><th>Brand owner</th><th class="num">Open pipeline</th></tr>
+<tr><td>Cooling</td><td>QTC 118220, 118904, 120011</td><td class="lk">Tom Brennan</td><td class="num">$4.1M</td></tr>
+<tr><td>Ingénia</td><td>IN-20931</td><td class="lk">Dana Reyes</td><td class="num">$6.6M</td></tr>
+<tr class="new"><td>Patterson-Kelley</td><td>PK ERP 004417</td><td class="lk">Lena Duval</td><td class="num">$1.3M</td></tr>
+<tr><td>TAMCO</td><td>T-7781</td><td class="lk">Jess Park</td><td class="num">$0.6M</td></tr></table>`,{ico:'B',cls:'i-rep',raw:true})
+ +CARD('Project Relationships (4)',`<table class="dt"><tr><th>Account</th><th>Relationship type</th><th>Project</th></tr><tr><td class="lk">Lakemont Health</td><td>Owner</td><td class="lk">Lakemont Health East Tower Expansion</td></tr><tr><td class="lk">Kessler MEP Engineers</td><td>Engineer</td><td class="lk">Lakemont Health East Tower Expansion</td></tr><tr><td class="lk">Midwest Mechanical Contractors</td><td>Mechanical Contractor</td><td class="lk">Buckeye State University Research Building</td></tr><tr><td class="lk">Holloway Partners Architects</td><td>Architect</td><td class="lk">Lakemont Health East Tower Expansion</td></tr></table>`,{ico:'A',cls:'i-acc',raw:true})
+ +CARD('Related Projects (3)',`<table class="dt"><tr><th>Project</th><th>Vertical</th><th>Brands</th><th>Project phase</th></tr><tr><td class="lk">Lakemont Health East Tower Expansion</td><td>Healthcare</td><td>3</td><td>Design Development</td></tr><tr><td class="lk">Northpoint Data Center Campus, Building C</td><td>Data Center</td><td>2</td><td>Construction Documents</td></tr><tr><td class="lk">Buckeye State University Research Building</td><td>Education</td><td>2</td><td>Design Development</td></tr></table>`,{ico:'P',cls:'i-proj',raw:true})
+ +CARD('Related Contacts (4)',`<table class="dt"><tr><th>Name</th><th>Title</th><th>Account</th></tr><tr><td class="lk">Mike Sorensen</td><td>Senior Project Manager</td><td>Ardent Builders – Ohio Region</td></tr><tr><td class="lk">Aisha Grant</td><td>Director of Preconstruction</td><td>Ardent Builders</td></tr><tr><td class="lk">Carl Wexler</td><td>MEP Coordinator</td><td>Ardent Builders – Great Lakes Region</td></tr><tr><td class="lk">Jen Ostrowski</td><td>Purchasing Manager</td><td>Ardent Builders – Ohio Region</td></tr></table>`,{ico:'C',cls:'i-con',raw:true});
+SC.push({key:'s2',label:'2 ERP and Unified Customer View',title:'Map an ERP account into the hierarchy, untouched',screens:[
+ {html:frame({tab:'Accounts',who:WHO.sam,url:erpAcc},erpAccPage({viewHot:1})),do:'Point at the read-only ERP reference, then click View Duplicates.',rec:'Use the same matching rules for data migration and for every daily batch, so a brand onboards and runs with identical results.',say:'Each brand ERP sends its customers on a scheduled batch through Boomi, landing as accounts with their ERP details on a cross-reference record. Standard duplicate rules do the matching: exact matches are blocked and attached to the existing account automatically; possible matches are flagged on the record. This is one ERP customer as it arrived. The ERP-mastered details sit on the cross-reference and are read-only for everyone except the integration. The standard Potential Duplicates component says the matching rule found two possible duplicates.'},
+ {html:frame({tab:'Accounts',who:WHO.sam,url:erpAcc},dupList(false)),do:'Select Ardent Builders – Ohio Region.',say:'The Standard Account Matching Rule found two candidates. Ohio Region matches on name, billing address and phone. Arden Mechanical is a decoy: a similar name, but a different customer type, address and phone.'},
+ {html:frame({tab:'Accounts',who:WHO.sam,url:erpAcc},dupList(true)),do:'Click Next.',say:'Two accounts selected for the standard merge.'},
+ {html:frame({tab:'Accounts',who:WHO.sam,url:erpAcc},mergeCmp),do:'Point at the master record and the chosen values, then click Next.',say:'The global account, Ardent Builders – Ohio Region, is the master, and its values win. Merging moves related records to the master, so the ERP cross-reference moves across and the ERP data itself is never edited.'},
+ {html:frame({tab:'Accounts',who:WHO.sam,url:erpAcc},mergeOk),do:'Click Merge Accounts.',say:'Standard merge. The ERP-created account goes to the Recycle Bin; everything related to it moves to the master.'},
+ {html:frame({tab:'Accounts',who:WHO.sam,url:'spx-hvac.lightning.force.com/lightning/r/Account/0018c00002ArdOH/view'},ohioPage),do:'Show PK-004417 on the Ohio Region account and its field history, then click View Account Hierarchy.',say:'Here is the proof: PK-004417 now belongs to Ohio Region, a flow set the brand relationship, and no ERP field changed.'},
+ {html:frame({tab:'Accounts',who:WHO.sam,url:'spx-hvac.lightning.force.com/lightning/r/Account/0018c00002Ard/hierarchy'},hier),do:'Point at the new Patterson-Kelley reference, then switch to Priya.',say:'One global account with regions underneath, and every brand\'s ERP number hanging off the right region.',switchTo:'Switch to Priya\'s browser'},
+ {html:frame({tab:'Accounts',url:'spx-hvac.lightning.force.com/lightning/r/Account/0018c00002Ard/view',who:WHO.priya},ucv),do:'Walk the Unified Customer View.',say:'This is the Unified Customer View from your requirements. Four brands, one General Contractor: each brand\'s relationship and ERP references, the project relationships with Owners, Engineers and Mechanical Contractors, the projects Ardent is on, and the contacts. A brand leader sees the brand rows; an RSM sees their own brand.',end:true},
+]});
+
+/* ======================= SCENARIO 3 ======================= */
+const purl='spx-hvac.lightning.force.com/lightning/r/Project__c/a0P8c00000977/view';
+const s3list=CARD('Projects: Strategic large projects (over $100M)',`<table class="dt"><tr><th>Project</th><th>Vertical</th><th class="num">Est. construction value</th><th>Project phase</th><th class="num">Brands</th><th>BOD secured</th><th>Rep conflict</th></tr>
+<tr data-go><td class="lk"><b>Lakemont Health East Tower Expansion</b></td><td>Healthcare</td><td class="num">$186.0M</td><td>Design Development</td><td class="num">3</td><td>2 of 3</td><td>✓</td></tr>
+<tr><td class="lk">Westfield Regional Medical Center</td><td>Healthcare</td><td class="num">$148.0M</td><td>Schematic Design</td><td class="num">3</td><td>0 of 3</td><td></td></tr>
+<tr><td class="lk">Lakeview Children's Hospital Pavilion</td><td>Healthcare</td><td class="num">$210.0M</td><td>Schematic Design</td><td class="num">2</td><td>1 of 2</td><td></td></tr>
+<tr><td class="lk">Northpoint Data Center Campus, Building C</td><td>Data Center</td><td class="num">$310.0M</td><td>Construction Documents</td><td class="num">2</td><td>2 of 2</td><td></td></tr>
+<tr><td class="lk">Riverside Commons Multifamily Tower</td><td>Multifamily</td><td class="num">$140.0M</td><td>Schematic Design</td><td class="num">2</td><td>1 of 2</td><td></td></tr>
+<tr><td class="lk">Buckeye State University Research Building</td><td>Education</td><td class="num">$120.0M</td><td>Design Development</td><td class="num">2</td><td>1 of 2</td><td></td></tr></table>`,{ico:'P',cls:'i-proj',raw:true});
+/* Project page: standard components only. Highlights panel (compact layout), Path on Project Phase, the standard
+   Opportunities related list (Opportunity.Project__c lookup), Stakeholders and Project History. Project totals and the
+   Owner Conflict flag are fields maintained by record-triggered flows on Opportunity. */
+const OPP3=(o)=>[['Lakemont East Tower – Ingénia – Custom AHUs','Ingénia','3.0 Spec and Influence','Secured','Buckeye Air Systems','Dana Reyes',o.ingAmt||'$3,350,000',''],
+ ['Lakemont East Tower – Cooling – Cooling towers','Cooling','4.0 Solution and Proposal','Secured','Buckeye Air Systems','Tom Brennan','$210,000',''],
+ ['Lakemont East Tower – PK – Boilers and water heaters','Patterson-Kelley','2.0 Needs Analysis and Qualify','Pending','Miami Valley Hydronics','Lena Duval','$320,000','✓'],
+ ['Lakemont Health East Tower – PK – Hydronic plant','Patterson-Kelley','1.0 Prospect and Market ID','Not yet','Lakeshore Hydronic Sales','Rob Keane','',  '✓']];
+function projPage(o={}){const rows=OPP3(o);
+ return (o.toast?TOAST(o.toast):'')
+ +HL('P','i-proj','Project · Strategic large project','Lakemont Health East Tower Expansion',B('Follow')+B('Edit'),[['Vertical','Healthcare'],['Project phase','Design Development'],['Est. construction value','$186.0M'],['Total SPX potential',o.total||'$3.88M'],['Brands engaged',o.brands||'3'],['BOD secured','2 of 3'],['Rep conflict','✓']])
+ +`<div class="card"><div class="why" style="padding:8px 12px 0">Project phase</div><div class="path">${PHASES.map((s,i)=>`<span class="${i<2?'done':i===2?'cur':''}">${s}</span>`).join('')}</div></div>`
+ +CARD(`Opportunities (${rows.length})`,`<table class="dt"><tr><th>Opportunity Name</th><th>Brand</th><th>Stage</th><th>BOD Status</th><th>Rep Firm</th><th>Owner</th><th class="num">Amount</th><th>Rep Conflict</th></tr>
+${rows.map((r,i)=>`<tr${o.ingNew&&i===0?' class="new"':''}><td class="lk">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="lk">${r[4]}</td><td class="lk">${r[5]}</td><td class="num">${r[6]}</td><td>${r[7]}</td></tr>`).join('')}</table>`,{ico:'O',cls:'i-opp',raw:true})
+ +CARD('Stakeholders (4)','<table class="dt"><tr><th>Role</th><th>Account</th></tr><tr><td>Owner</td><td class="lk">Lakemont Health</td></tr><tr><td>General Contractor</td><td class="lk">Ardent Builders – Ohio Region</td></tr><tr><td>Engineer</td><td class="lk">Kessler MEP Engineers</td></tr><tr><td>Architect</td><td class="lk">Holloway Partners Architects</td></tr></table>',{ico:'S',cls:'i-acc',raw:true});}
+SC.push({key:'s3',label:'3 One project',title:'One project rolling up every brand',screens:[
+ {html:frame({tab:'Projects',who:WHO.priya,url:'spx-hvac.lightning.force.com/lightning/o/Project__c/list?filterName=Strategic'},s3list),do:'Open Lakemont Health East Tower Expansion.',say:'These are SPX\'s strategic large projects: over $100M, across the four verticals you target, including Westfield, which the feed brought in today. Each exists once, however many brands are chasing it.'},
+ {html:frame({tab:'Projects',who:WHO.priya,url:purl},projPage()),do:'Walk the highlights, the project phase and the Opportunities list, then point at the two Patterson-Kelley rows and the Rep conflict flag.',say:'Everything here is standard. Total SPX potential, brands engaged and BOD secured are fields kept up to date by a flow from the opportunities: a $186M project, $3.88M of SPX content. SPX supplies part of the mechanical equipment, not chillers, ductwork, piping or labor, so a few percent of construction value is expected. The project is in Design Development while the brands sit at different commercial stages. Now the rep conflict: two Patterson-Kelley opportunities on the same project with different owners. A flow compares the owners of each brand\'s opportunities on the project and ticks Rep Conflict on both opportunities and on the project, so the segment coordinator sees it in the highlights and in the list.',rec:'Name one first contact per strategic project, so brands don\'t call the same engineer separately.',watch:'Different brands on one project always have different owners, so the check compares owners within the same brand. Don\'t suggest a resolution rule; ask how SPX resolves rep conflicts today.',end:true},
+]});
+/* ======================= SCENARIO 4 ======================= */
+const OPPS=[['Lakemont East Tower – Ingénia – Custom AHUs','Ingénia','Dana Reyes','3.0 Spec','$3,350,000','dmp'],['Westfield RMC – Ingénia – Custom AHUs','Ingénia','Dana Reyes','1.0 Prospect','$2,700,000','dmp'],['Buckeye State University – Ingénia – Lab AHUs','Ingénia','Dana Reyes','2.0 Qualify','$3,200,000','dmp'],['Columbus Children\'s Research – Ingénia – Custom AHUs','Ingénia','Dana Reyes','3.0 Spec','$1,900,000','dmp'],['Franklin University Science Hall – Ingénia – AHUs','Ingénia','Dana Reyes','1.0 Prospect','$1,400,000','dmp'],['Grandview Medical Office – Ingénia – Modular AHUs','Ingénia','Dana Reyes','4.0 Proposal','$650,000','dmp'],['Ohio Valley Cancer Institute – Ingénia – Custom AHUs','Ingénia','Kevin Liu','2.0 Qualify','$2,400,000','mp'],['Mercy Clinic Renovation – Ingénia – Modular AHUs','Ingénia','Kevin Liu','2.0 Qualify','$340,000','mp'],['Lakemont East Tower – Cooling – Cooling towers','Cooling','Tom Brennan','4.0 Proposal','$210,000','p'],['Northpoint DC Bldg C – Cooling – Cooling towers','Cooling','Tom Brennan','Closed Won','$3,400,000','p'],['Lakemont East Tower – PK – Boilers and water heaters','Patterson-Kelley','Lena Duval','2.0 Qualify','$320,000','p'],['Riverside Commons – PK – Boilers and water heaters','Patterson-Kelley','Lena Duval','2.0 Qualify','$550,000','p'],['Northpoint DC Bldg C – TAMCO – Dampers','TAMCO','Jess Park','3.0 Spec','$600,000','p'],['Columbus State Library – TAMCO – Dampers','TAMCO','Jess Park','1.0 Prospect','$150,000','p'],['Riverside Commons – Cooling – Cooling towers','Cooling','Tom Brennan','3.0 Spec','$280,000','p'],['Lakeview Children\'s – Cooling – Cooling towers','Cooling','Tom Brennan','3.0 Spec','$250,000','p'],['Lakeview Children\'s – PK – Boilers and water heaters','Patterson-Kelley','Lena Duval','2.0 Qualify','$300,000','p']];
+const PROJ=[['Lakemont Health East Tower Expansion','Healthcare','3','dmp',{d:'Linked to your opportunity',m:'Ingénia participates',p:'Segment role'}],['Westfield Regional Medical Center','Healthcare','3','dmp',{d:'Linked to your opportunity',m:'Ingénia participates',p:'Segment role'}],['Buckeye State University Research Building','Education','2','dmp',{d:'Linked to your opportunity',m:'Ingénia participates',p:'Segment role'}],['Lakeview Children\'s Hospital Pavilion','Healthcare','2','mp',{m:'Shared strategic project',p:'Segment role'}],['Northpoint Data Center Campus, Building C','Data Center','2','mp',{m:'Shared strategic project',p:'Segment role'}],['Riverside Commons Multifamily Tower','Multifamily','2','mp',{m:'Shared strategic project',p:'Segment role'}]];
+/* Three Lightning home pages, one per profile (Rep, Brand Sales Leader, Segment Sales Leader), assigned by app and profile.
+   Every component is standard: Report Chart, List View, Key Deals, Today's Tasks. Report charts run as the viewing user,
+   so the role hierarchy and sharing decide what each person sees. */
+const users=(who)=>CARD('Users: Demo personas',`<table class="dt"><tr><th>Action</th><th>Full Name</th><th>Role</th><th>Profile</th><th>Active</th></tr>
+${[['Dana Reyes','Ingénia RSM Ohio Valley','SPX RSM'],['Marcus Hill','Ingénia Brand Sales Leader','SPX Brand Sales Leader'],['Priya Natarajan','Segment Sales Leader','SPX Segment Sales Leader']].map(r=>`<tr><td><span class="lk">Edit</span> | <span class="lk" ${who===r[0]?'data-go':''}>Login</span></td><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>✓</td></tr>`).join('')}</table>`,{raw:true});
+const setupU={tab:'Setup:Users',url:'spx-hvac.lightning.force.com/lightning/setup/ManageUsers/home',who:WHO.sam};
+const homeUrl='spx-hvac.lightning.force.com/lightning/page/home';
+const rc=(title,rows,lw,foot)=>CARD(title,rows.map(([l,v,w,c])=>`<div class="hbar" style="grid-template-columns:${lw||150}px 1fr 64px"><span>${l}</span><span class="track"><i style="width:${w}%; background:${c||'#0176D3'}"></i></span><span class="val">${v}</span></div>`).join('')+`<p class="why" style="margin:6px 0 0">${foot}</p>`);
+const tasks=(t)=>CARD("Today's Tasks",`<div class="feed">${t.map(x=>`<div>${x}<div class="when">Today</div></div>`).join('')}</div>`);
+const homeRep=`<div class="row c2">`+rc('My Pipeline by Stage',[['1.0 Prospect','$4.1M',78],['2.0 Qualify','$3.2M',61],['3.0 Spec and Influence','$5.25M',100],['4.0 Solution and Proposal','$0.65M',12]],170,'My open opportunities · View Report')
+ +rc('Leads',[['Grove City Surgical Center – Ingénia','$1.1M',100,'#0B827C'],['Ohio Valley Rehab Hospital – Ingénia','$0.9M',82,'#0B827C']],230,'My new leads, estimated brand potential · View Report')+`</div><div class="row c2">`
+ +rc('Opportunities',[['Lakemont East Tower – Ingénia','$3.35M',100],['Buckeye State University – Ingénia','$3.2M',96],['Westfield RMC – Ingénia','$2.7M',81],['Columbus Children\'s Research – Ingénia','$1.9M',57]],230,'My top open opportunities by amount · View Report')
+ +tasks(['Review East Tower AHU schedule revisions with Kessler MEP','Introduce yourself to Rachel Tran (Westfield)'])+`</div>`;
+const homeBSL=`<div class="row c2">`+rc('Pipeline by Owner',[['Maria Santos','$38.4M',100],['Jordan Blake','$31.2M',81],['Alicia Gomez','$29.7M',77],['Ben Ortiz','$27.5M',72],['Hannah Lee','$26.1M',68],['Samir Patel','$24.8M',65],['Dana Reyes','$13.2M',34],['Leo Fischer','$11.6M',30],['Grace Kim','$8.76M',23],['Kevin Liu','$2.74M',7]],120,'My team\'s open opportunities: $214.0M · View Report')
+ +rc('Opportunities',[['Great Lakes Medical Center – Ingénia','$5.6M',100],['Carolina Research Campus – Ingénia','$4.9M',88],['Lakemont East Tower – Ingénia','$3.35M',60],['Buckeye State University – Ingénia','$3.2M',57],['Westfield RMC – Ingénia','$2.7M',48]],230,'My team\'s top open opportunities by amount · View Report')+`</div>`
+ +tasks(['Review the Great Lakes forecast with Maria Santos','Pipeline review with the Ohio Valley RSMs']);
+const homeSSL=`<div class="row c2">`+rc('Open Pipeline by BU',[['Cooling','$610.0M',100,'#0176D3'],['cAHU','$214.0M',35.1,'#0B827C'],['EAM','$96.0M',15.7,'#F4BC25'],['Hydronics','$68.0M',11.1,'#9050E9']],90,'All brands · View Report')
+ +rc('Open Pipeline by Stage',[['1.0 Prospect','$211.3M',79,'#5867E8'],['2.0 Qualify','$268.9M',100,'#3C97DD'],['3.0 Spec and Influence','$246.7M',92,'#0B827C'],['4.0 Solution and Proposal','$180.4M',67,'#2E844A'],['5.0 Negotiate and Close','$81.1M',30,'#014486']],170,'All brands · View Report')+`</div><div class="row c2">`
+ +rc('Projects',[['Meridian Hyperscale Campus','$12.3M',100,'#706E6B'],['Lone Star Data Center Campus','$9.4M',76,'#706E6B'],['Great Lakes Medical Center','$6.3M',51,'#706E6B'],['Carolina Research Campus','$5.5M',45,'#706E6B'],['Northpoint Data Center Campus, Building C','$4.0M',33,'#706E6B'],['Lakemont Health East Tower Expansion','$3.88M',32,'#706E6B']],230,'Top projects by total SPX potential · View Report')
+ +rc('Opportunities',[['Meridian Hyperscale Campus – Cooling','$11.4M',100,'#0176D3'],['Lone Star DC Campus – Cooling','$8.9M',78,'#0176D3'],['Great Lakes Medical Center – Ingénia','$5.6M',49,'#0B827C'],['Carolina Research Campus – Ingénia','$4.9M',43,'#0B827C'],['Atlanta Data Hub – TAMCO','$3.9M',34,'#F4BC25']],230,'Top open opportunities across BUs and brands · View Report')+`</div>`;
+const LA=(n,hot)=>({tab:'Home',url:homeUrl,loginAs:n,logoutHot:hot});
+SC.push({key:'s4',label:'4 Visibility',title:'Who sees what: three personas, three home pages',screens:[
+ {html:frame(setupU,users('Dana Reyes')),do:'Click Login next to Dana Reyes.',say:'Three people, three home pages. Each is a standard Lightning home page assigned to the person\'s profile, and every component on it respects the role hierarchy and sharing. First, a rep.',watch:'Ties to the role-based visibility requirements (G.R9 and P3.R8 in our requirements mapping). Login As takes a few seconds; keep a Chrome profile per persona as backup.'},
+ {html:frame({...LA('Dana Reyes',true),who:WHO.dana},homeRep),do:'Walk the components, then click "Log out as Dana Reyes".',say:'Dana, an Ingénia RSM: her own pipeline, her new leads, her top opportunities and her tasks. Nothing from other RSMs or other brands.'},
+ {html:frame(setupU,users('Marcus Hill')),do:'Click Login next to Marcus Hill.',say:'Now the Ingénia Brand Sales Leader.'},
+ {html:frame({...LA('Marcus Hill',true),who:WHO.marcus},homeBSL),do:'Walk the components, then click "Log out as Marcus Hill".',say:'Marcus leads Ingénia. The same kind of report chart now shows every RSM in his team, because they sit below him in the role hierarchy, and his top opportunities across the brand. Other brands\' deals stay out of his view.'},
+ {html:frame(setupU,users('Priya Natarajan')),do:'Click Login next to Priya Natarajan.',say:'Finally the Segment Sales Leader.'},
+ {html:frame({...LA('Priya Natarajan'),who:WHO.priya},homeSSL),do:'Walk the components.',say:'Priya sees across every BU and brand: pipeline by business unit and by stage, the top projects, and the highest-value opportunities in the segment. Same platform, three home pages, and the role hierarchy decides what each person sees.',end:true},
+]});
+
+/* ======================= SCENARIO 5: native Opportunity Products, Quotes and quote sync (Sales Cloud, no CPQ) ======================= */
+const ourl5='spx-hvac.lightning.force.com/lightning/r/Opportunity/0068c00000Ing/view';
+const qurl='spx-hvac.lightning.force.com/lightning/r/Quote/0Q08c000000128/view';
+/* Products at product-family level (Ingénia's published families). Price per unit; list price is a budget price per unit for SPX to replace. */
+const PRODS=[['Custom air handling unit, double wall','Air handling','$450,000'],['Custom air handling unit, 100% outside air','Air handling','$450,000'],['Modular air handling unit','Air handling','$280,000'],['Jobsite assembled air handling unit','Air handling','$410,000'],['Factory startup and commissioning','Services','$12,500'],['Freight and rigging','Services','$35,000']];
+const EST=[['Custom air handling unit, double wall','8','$418,750','Budget estimate: 8 units','$3,350,000']];
+const QL=[['Custom air handling unit, double wall','6','$427,500','AHU-1 to AHU-6','$2,565,000'],['Custom air handling unit, 100% outside air','2','$450,000','AHU-7 and AHU-8','$900,000'],['Factory startup and commissioning','8','$12,500','One per unit','$100,000'],['Freight and rigging','1','$35,000','Consolidated shipment','$35,000']];
+const lineTable=(L,o={})=>`<table class="dt"><tr><th>Product</th><th class="num">Quantity</th><th class="num">Sales price</th><th class="num">Total price</th></tr>${L.map(l=>`<tr${o.newRows?' class="new"':''}><td>${l[0]}${o.desc?`<div class="why">${l[3]}</div>`:''}</td><td class="num">${l[1]}</td><td class="num">${l[2]}</td><td class="num">${l[4]}</td></tr>`).join('')}</table>`;
+function opp5(o={}){const L=o.synced?QL:o.products?EST:[];
+ const amt=o.synced?'$3,600,000':'$3,350,000';
+ return (o.toast?TOAST(o.toast):'')+HL('O','i-opp','Opportunity · Golden Template – Project Sale','Lakemont East Tower – Ingénia – Custom AHUs',B('Edit'),[['Account','Lakemont Health'],['Amount',amt],['Price book','Ingénia 2026 list (USD)'],['Owner','Dana Reyes']])+PATH(GOLD,2)
+ +`<div class="row c2"><div>`+CARD('Details',F(`Project::@P-00977 Lakemont Health East Tower Expansion${o.projHot?' ^hot':''}||Amount::${amt}${L.length?' (total of opportunity products) ^lock':' (rep estimate)'}||Brand::Ingénia ^lock||BOD status::Secured`))+`</div><div>`
+ +CARD(`Opportunity Products (${L.length})`,L.length?lineTable(L,{newRows:o.synced}):'<p class="why" style="margin:10px 12px">No opportunity products yet. The amount is the rep\'s estimate.</p>',{ico:'P',cls:'i-quote',raw:true,right:L.length?B('Edit Products'):B('Add Products',{brand:1,hot:o.addHot})})
+ +CARD(`Quotes (${o.quote?1:0})`,o.quote?`<table class="dt"><tr><th>Quote</th><th>Status</th><th>Syncing</th><th class="num">Total price</th></tr><tr><td class="lk">Q-00128 East Tower AHU budget quote</td><td>Presented</td><td>${o.synced?'✓':''}</td><td class="num">$3,600,000</td></tr></table>`:'<p class="why" style="margin:10px 12px">No quotes yet.</p>',{ico:'Q',cls:'i-quote',raw:true,right:o.quote?'':B('New Quote',{brand:1,hot:o.quoteHot})})+`</div></div>`;}
+const addProd=(sel,on)=>MODAL('Add Products <span class="why" style="font-size:13px">Price book: Ingénia 2026 list (USD), set from brand and currency</span>',`<div class="input" style="margin-bottom:10px">Search products...</div><table class="dt cgrid"><tr><th></th><th>Product name</th><th>Product family</th><th class="num">List price</th></tr>
+${PRODS.map((p,i)=>{const c=sel&&on.includes(i);return `<tr${c?' class="new"':''}><td><span class="chk${c?' on':''}"></span></td><td>${p[0]}</td><td>${p[1]}</td><td class="num">${p[2]}</td></tr>`;}).join('')}</table>
+<p class="why" style="margin:8px 0 0">${sel?on.length+' selected':'0 selected'}</p>`,B('Cancel')+B('Next',{brand:1,hot:sel}),{w:820});
+const editLines=(title,L,o={})=>MODAL(title,`<table class="dt"><tr><th>Product</th><th class="num">Quantity</th><th class="num">Sales price</th></tr>
+${L.map((l,i)=>`<tr><td>${l[0]}</td><td><div class="input" style="text-align:right${o.changed&&o.changed.includes(i)?'; border-color:var(--sf-brand)':''}">${l[1]}</div></td><td class="num">${l[2]}</td></tr>`).join('')}</table>`,B('Cancel')+B('Save',{brand:1,hot:1}),{w:880});
+const newQuote=MODAL('New Quote',`<div class="form-grid">
+<div><label>Quote name</label><div class="input">East Tower AHU budget quote</div></div><div><label>Status</label><div class="input">Draft</div></div>
+<div><label>Opportunity</label><div class="input" style="background:#F3F3F3">Lakemont East Tower – Ingénia – Custom AHUs</div></div><div><label>Expiration date</label><div class="input">Dec 14, 2026</div></div>
+<div><label>Contact</label><div class="input">Aisha Grant, Ardent Builders</div></div><div><label>Price book</label><div class="input" style="background:#F3F3F3">Ingénia 2026 list (USD)</div></div></div>
+<p class="why" style="margin:10px 0 0">The new quote includes the opportunity's products by default.</p>`,B('Cancel')+B('Save',{brand:1,hot:1}),{w:780});
+const quoteRec=(o={})=>(o.toast?TOAST(o.toast):'')+HL('Q','i-quote','Quote · Q-00128','East Tower AHU budget quote',B(o.synced?'Stop Sync':'Start Sync',{brand:1,hot:o.syncHot})+B('Edit'),[['Opportunity','Lakemont East Tower – Ingénia – Custom AHUs'],['Status',o.full?'Presented':'Draft'],['Contact','Aisha Grant'],['Total price',o.full?'$3,600,000':'$3,350,000'],['Syncing',o.synced?'Yes':'No']])
+ +CARD(`Quote Line Items (${o.full?4:1})`,lineTable(o.full?QL:EST,{desc:1}),{ico:'Q',cls:'i-quote',raw:true,right:B('Add Products',{brand:!o.full,hot:o.addHot})+B('Edit Products')});
+const syncM=MODAL('Start Sync','<p style="margin:0; font-size:13px">Syncing this quote with its opportunity replaces the opportunity\'s products with the quote line items and updates the opportunity amount to match. While the quote is syncing, changes to line items on either record sync to the other. An opportunity can sync with one quote at a time.</p>',B('Cancel')+B('Continue',{brand:1,hot:1}),{w:640});
+const bars=(rows,lw)=>rows.map(([l,v,w,c])=>`<div class="hbar" style="grid-template-columns:${lw||80}px 1fr 64px"><span>${l}</span><span class="track"><i style="width:${w}%; background:${c}"></i></span><span class="val">${v}</span></div>`).join('');
+const dash5=(after)=>CARD(`HVAC segment pipeline <span class="why">As of ${after?'today 11:18 AM':'today 9:14 AM'}, viewing as Priya Natarajan</span>`,'',{ico:'D',cls:'i-dash',raw:true,right:B('Refresh',{brand:1,hot:!after})})
+ +`<div class="row" style="grid-template-columns:repeat(6,1fr); margin-bottom:12px">${TILE('Segment open pipeline',after?'$988.25M':'$988.00M','All brands')}${TILE('Healthcare',after?'$302.35M':'$302.10M','Open pipeline')}${TILE('Data Center','$401.50M','Open pipeline')}${TILE('Education','$142.30M','Open pipeline')}${TILE('Multifamily','$88.40M','Open pipeline')}${TILE('Other','$53.70M','Open pipeline')}</div>`
+ +`<div class="row c2">`+CARD('Open pipeline by BU',bars([['Cooling','$610.0M',100,'#0176D3'],['cAHU',after?'$214.3M':'$214.0M',35.1,'#0B827C'],['EAM','$96.0M',15.7,'#F4BC25'],['Hydronics','$68.0M',11.1,'#9050E9']]))
+ +CARD('Projects by total SPX potential',bars([['Lakemont Health East Tower Expansion',after?'$4.13M':'$3.88M',after?100:94,'#706E6B'],['Northpoint Data Center Campus, Building C','$4.00M',after?97:97,'#706E6B'],['Buckeye State University Research Building','$3.54M',86,'#706E6B'],['Westfield Regional Medical Center','$2.70M',65,'#706E6B'],['Riverside Commons Multifamily Tower','$0.83M',20,'#706E6B'],['Lakeview Children\'s Hospital Pavilion','$0.55M',13,'#706E6B']],260))+`</div>`;
+SC.push({key:'s5',label:'5 Quote',title:'Capture a quote and price on an opportunity',screens:[
+ {html:frame({tab:'Opportunities',who:WHO.dana,url:ourl5},opp5({addHot:1})),do:'Point at the $3.35M estimate and the price book, then click Add Products on Opportunity Products.',say:'Ardent\'s preconstruction team wants budget pricing on the AHUs. Dana first captures her estimate as an opportunity product, at product-family level. The price book is already set from the brand and currency. Standard Sales Cloud: no CPQ, no configurator.',rec:'Set the price book automatically from brand and currency with a small flow, so reps can\'t pick the wrong one.'},
+ {html:frame({tab:'Opportunities',who:WHO.dana,url:ourl5},addProd(true,[0])),do:'Select "Custom air handling unit, double wall", then click Next.',say:'Products are Ingénia\'s published product families, not every configuration.'},
+ {html:frame({tab:'Opportunities',who:WHO.dana,url:ourl5},editLines('Edit Selected Products',EST)),do:'Show quantity 8 and the sales price, then click Save.',say:'Eight units at her estimated price per unit. Product, quantity, sales price: that\'s all she captures.'},
+ {html:frame({tab:'Opportunities',who:WHO.dana,url:ourl5},opp5({products:1,quoteHot:1,toast:'1 opportunity product was added.'})),do:'Point at the amount, now calculated from the product, then click New Quote.',say:'Once an opportunity has products, its amount is the total of those products. Now the quote.'},
+ {html:frame({tab:'Opportunities',who:WHO.dana,url:ourl5},newQuote),do:'Show the fields, then click Save.',say:'A budget quote for Aisha Grant, Ardent\'s preconstruction director. It includes the opportunity\'s product by default and uses the same price book.'},
+ {html:frame({tab:'Quotes',who:WHO.dana,url:qurl},quoteRec({addHot:1})),do:'Show the copied line, then click Add Products on Quote Line Items.',say:'The quote starts with Dana\'s estimate line. Kessler\'s schedule now gives the real mix, so she refines the quote.'},
+ {html:frame({tab:'Quotes',who:WHO.dana,url:qurl},addProd(true,[1,4,5])),do:'Select the outside-air unit, startup and freight, then click Next.',say:'Two units are 100% outside air, plus startup and freight.'},
+ {html:frame({tab:'Quotes',who:WHO.dana,url:qurl},editLines('Edit Quote Line Items',QL,{changed:[0]})),do:'Point at the double-wall line changed from 8 to 6 units, then click Save.',say:'Six double-wall units, two outside-air units, startup for all eight and one freight line. Product, quantity and sales price only.'},
+ {html:frame({tab:'Quotes',who:WHO.dana,url:qurl},quoteRec({full:1,syncHot:1,toast:'Quote line items were saved.'})),do:'Show the $3.6M total, then click Start Sync.',say:'The quote now totals $3.6M. Syncing makes it the source of truth for the opportunity.'},
+ {html:frame({tab:'Quotes',who:WHO.dana,url:qurl},syncM),do:'Read the sync message, then click Continue.',say:'This is native Sales Cloud behavior: the quote\'s lines replace the opportunity\'s products, and the amount follows.'},
+ {html:frame({tab:'Opportunities',who:WHO.dana,url:ourl5},opp5({synced:1,quote:1,projHot:1,toast:'Q-00128 is now syncing with this opportunity.'})),do:'Show the four opportunity products and the $3.6M amount, then click the Project link.',say:'Dana\'s single estimate line has been replaced by the four quote lines, and the amount is $3.6M. While the quote syncs, any line change on either record updates the other.'},
+ {html:frame({tab:'Projects',who:WHO.dana,url:'spx-hvac.lightning.force.com/lightning/r/Project__c/a0P8c00000977/view'},projPage({total:'$4.13M',ingNew:1,ingAmt:'$3,600,000',hideConflict:1})),do:'Show the new Total SPX potential, then switch to Priya.',say:'The project\'s roll-up moved from $3.88M to $4.13M on its own.',switchTo:'Switch to Priya\'s browser'},
+ {html:frame({tab:'Dashboards',url:'spx-hvac.lightning.force.com/lightning/r/Dashboard/01Z8c000000Seg/view',who:WHO.priya},dash5(false)),do:'Click Refresh.',say:'The segment dashboard was last refreshed this morning.',watch:'Dashboards cache. Don\'t refresh in the minutes before this step or you may hit the refresh limit.'},
+ {html:frame({tab:'Dashboards',url:'spx-hvac.lightning.force.com/lightning/r/Dashboard/01Z8c000000Seg/view',who:WHO.priya},dash5(true)),do:'Show the metrics and charts after refresh.',say:'After a refresh, the segment, Healthcare, the cAHU BU and Lakemont East Tower all include the new quote value. One quote from a rep, standard products and price books, and the same mechanism for every brand.',end:true},
+]});
+/* ======================= SCENARIO 6 ★ (preconfigured org: everything pre-built, activated live) ======================= */
+const prd={env:'prod',who:WHO.sam};
+const tom6={env:'prod',tab:'Opportunities',url:'spx-hvac.lightning.force.com/lightning/r/Opportunity/0068c00000Cl7/view',who:WHO.tom};
+const LEGACY=['Qualify','Design Assist','Quote','Negotiate','Closed'];
+function tomBody(o){const cur=o.editing||!o.saved?2:3;
+ return (o.toast?TOAST(o.toast):'')+HL('O','i-opp','Opportunity · Cooling – Legacy','Northpoint DC Bldg D – Cooling – Towers',B('Edit'),[['Record type','Cooling – Legacy'],['Brand','Cooling'],['Stage',o.saved?'Negotiate':'Quote'],['Amount',o.saved?'$2,810,000':'$2,750,000']])
+ +`<div class="card"><div class="path">${LEGACY.map((st,i)=>`<span class="${i<cur?'done':i===cur?'cur':''}">${st}</span>`).join('')}</div></div>`
+ +(o.editing?CARD('Editing',`<div class="form-grid"><div><label>Stage</label><div class="input" style="border-color:var(--sf-brand)">Negotiate</div></div><div><label>Amount</label><div class="input" style="border-color:var(--sf-brand)">$2,810,000</div></div></div><div style="margin-top:10px; text-align:right">${B('Cancel')} ${B('Save',{brand:1,hot:1})}</div>`):'')
+ +CARD('QTC Message Log',`<table class="dt"><tr><th>Time</th><th>Record</th><th>Brand</th><th>Result</th></tr>${o.log.map((t,i)=>`<tr${i===0&&o.newLog?' class="new"':''}><td>${t}</td><td>Northpoint DC Bldg D</td><td>Cooling</td><td>Sent</td></tr>`).join('')}</table>`,{raw:true});}
+const split=(l,r)=>`<div class="split">${l}${r}</div>`;
+const tick=t=>`<div style="display:flex; gap:8px; padding:5px 0; border-bottom:1px solid var(--sf-line); font-size:12.5px"><span style="color:var(--sf-green); font-weight:700">✓</span><span>${t}</span></div>`;
+const plus=t=>`<div style="display:flex; gap:8px; padding:5px 0; border-bottom:1px solid var(--sf-line); font-size:12.5px"><span style="color:var(--sf-warn); font-weight:700">+</span><span>${t}</span></div>`;
+const shield=t=>`<div style="display:flex; gap:8px; padding:5px 0; border-bottom:1px solid var(--sf-line); font-size:12.5px"><span style="color:var(--sf-brand-dk); font-weight:700">=</span><span>${t}</span></div>`;
+
+/* activation tracker, reused on Setup screens */
+const PLAN=[['Brand picklist value','Chicago Fan in the Brand list'],['New fields','4 fan selection fields on Opportunity'],['Lightning record page','Page with the Chicago Fan section'],['Brand configuration','Custom metadata record: CF attributes'],['Flow','Participation flow, version with CF branch'],['Validation rule','Fan selection required before 3.0'],['Permission set','SPX Chicago Fan, assigned to users']];
+function planCard(done,cur){return CARD('Activation plan: Chicago Fan <span class="why">all built, switched off until today</span>',PLAN.map((p,i)=>`<div class="plan-row"><span>${i<done?'<span style="color:var(--sf-green); font-weight:700">✓</span>':i===cur?'<span class="spinner" style="margin:0"></span>':'<span style="color:var(--sf-weak)">○</span>'}</span><span><b>${p[0]}</b><span class="why"> · ${p[1]}</span></span><span>${i<done?'<span class="pill g">Active</span>':'<span class="pill">Built, inactive</span>'}</span></div>`).join(''));}
+
+/* 1. Before */
+const brandStatus=CARD('Brands on the golden template',`<table class="dt"><tr><th>Brand</th><th>BU</th><th>Status</th><th>Sends to QTC</th></tr>
+<tr><td>Cooling</td><td>Cooling</td><td><span class="pill g">Live</span></td><td>Yes</td></tr><tr><td>Ingénia</td><td>cAHU</td><td><span class="pill g">Live</span></td><td>No</td></tr>
+<tr><td>Patterson-Kelley</td><td>Hydronics</td><td><span class="pill g">Live</span></td><td>No</td></tr><tr><td>TAMCO</td><td>EAM</td><td><span class="pill g">Live</span></td><td>No</td></tr>
+<tr class="dim"><td>Chicago Fan</td><td>EAM</td><td>Configured, not active: 0 records</td><td>No</td></tr></table>`,{raw:true});
+/* 2. Assessment output */
+const onb6=HL('B','i-mdt','Brand onboarding · Assessment output','Chicago Fan',B('Start activation',{brand:1,hot:1}),[['Business unit','EAM'],['Users to onboard','14'],['Configuration only','Yes, no code']])
+ +`<div class="row c3">`
+ +CARD('What stays common (about 80%)',tick('Account and contact model')+tick('Opportunity object and record type')+tick('The five segment stages, 1.0 to 5.0')+tick('Shared Project model and brand participation')+tick('Security model: Rep, Brand Sales Leader, Segment')+tick('Segment reports and dashboards'),{ico:'✓',cls:'i-list'})
+ +CARD('What changes for Chicago Fan (about 20%)',plus('<b>Fan selection fields:</b> arrangement, wheel type, AMCA spark class, quantity')+plus('<b>Rule:</b> fan selection required before 3.0 Spec and influence')+`<div class="sec" style="margin-top:10px">Governed deviations</div><table class="dt"><tr><td>DEV-0008 Fan selection fields</td><td><span class="pill g">Approved</span></td></tr><tr><td>DEV-0009 Extra "Submittal review" stage</td><td><span class="pill r">Rejected</span><div class="why">Solved inside 3.0 instead</div></td></tr></table>`,{ico:'+',cls:'i-dev'})
+ +CARD('What does not change for Cooling',shield('Cooling users, data and page layouts')+shield('QTC integration: still Cooling only')+shield('No downtime; users stay logged in'),{ico:'=',cls:'i-acc'})
+ +`</div>`+planCard(0,-1);
+/* 3. Picklist value */
+const gvs=(act)=>{const vals=['Cooling','Ingénia','Patterson-Kelley','TAMCO'].concat(act?['Chicago Fan']:[]);
+ const api=v=>v.replace('é','e').replace(/[^A-Za-z]/g,'_');
+ return `<div class="om-crumb">Setup › Picklist Value Sets › Brand</div>`
+ +CARD('Picklist Value Set Detail',`<div class="form-grid" style="font-size:12.5px"><div><label>Label</label><div>Brand</div></div><div><label>Name</label><div>Brand</div></div><div><label>Description</label><div>SPX HVAC brands on the golden template</div></div><div><label>Restrict picklist to the values defined in the value set</label><div>✓</div></div></div>`,{right:B('Edit')+B('Where is this used?')})
+ +CARD(`Values <span class="why">(${vals.length})</span>`,`<table class="dt"><tr><th>Action</th><th>Values</th><th>API Name</th><th>Default</th><th>Modified By</th></tr>${vals.map(v=>`<tr${act&&v==='Chicago Fan'?' class="new"':''}><td><span class="lk">Edit</span> | <span class="lk">Del</span> | <span class="lk">Deactivate</span></td><td>${v}</td><td>${api(v)}</td><td></td><td>Sam Okafor, ${v==='Chicago Fan'?'Today':'6/2/2026'}</td></tr>`).join('')}</table>`,{raw:true,right:B('New')+B('Reorder')})
+ +CARD(`Inactive Values <span class="why">(${act?0:1})</span>`,act?'<p class="why" style="margin:10px 12px">No inactive values.</p>':`<table class="dt"><tr><th>Action</th><th>Values</th><th>API Name</th><th>Modified By</th></tr><tr><td><span class="lk">Edit</span> | <span class="lk">Del</span> | <span class="lk" data-go>Activate</span></td><td>Chicago Fan</td><td>Cincinnati_Fan</td><td>Sam Okafor, 10/14/2026</td></tr></table>`,{raw:true});};
+/* Object Manager */
+const OMNAV=['Details','Fields & Relationships','Page Layouts','Lightning Record Pages','Record Types','Validation Rules'];
+function OM(active,content,hotNav){return `<div class="om-crumb">Setup › Object Manager › Opportunity</div><div class="om"><div class="om-nav">${OMNAV.map(n=>`<div class="${n===active?'on':''}" ${n===hotNav?'data-go':''}>${n}</div>`).join('')}</div><div>${content}</div></div>`;}
+/* 4. Fields */
+const fieldsCard=CARD('Fields &amp; Relationships <span class="why">filtered: "fan" (4 of 63)</span>',`<table class="dt"><tr><th>Field label</th><th>API name</th><th>Data type</th><th>Visible to</th><th>Created</th></tr>
+${[['Fan arrangement','Fan_Arrangement__c','Picklist (6 values)'],['Wheel type','Wheel_Type__c','Picklist (4 values)'],['AMCA spark resistance','AMCA_Spark_Resistance__c','Picklist (4 values)'],['Quantity of fans','Fan_Quantity__c','Number(18, 0)']].map(r=>`<tr class="new"><td class="lk">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>SPX Chicago Fan</td><td>Sam Okafor, Oct 14</td></tr>`).join('')}</table>
+`,{raw:true});
+/* 5. LRP list */
+const lrpList=CARD('Lightning Record Pages',`<table class="dt"><tr><th>Label</th><th>Description</th><th>Activation</th></tr>
+<tr><td class="lk">Opportunity – Golden Template</td><td>Current page for every brand</td><td><span class="pill g">App default: HVAC Segment</span></td></tr>
+<tr class="hot" data-go><td class="lk"><b>Opportunity – Golden Template v2</b></td><td>Same page plus a Fan selection section, visible only for Chicago Fan</td><td><span class="pill">Not active</span></td></tr></table>`,{raw:true});
+/* 6. App Builder */
+function appBuilder(o={}){return `<div class="ab-bar"><b>Lightning App Builder</b><span style="opacity:.8">Opportunity – Golden Template v2</span><span style="margin-left:auto; display:flex; gap:6px">${B('Activation...',{hot:o.actHot})}${B('Save',{brand:1})}</span></div>
+<div class="ab"><div class="ab-pal"><b style="color:var(--sf-ink)">Components</b><div>Field Section</div><div>Path</div><div>Related List</div><div>Rich Text</div><div>Tabs</div></div>
+<div class="ab-canvas"><div class="ab-sec"><h6>Highlights panel</h6></div><div class="ab-sec"><h6>Path</h6></div>
+<div class="ab-sec"><h6>Field section: Golden template</h6><div class="fl"><span>Project</span><span>Business unit</span><span>Vertical</span><span>BOD status</span><span>Rep firm</span><span>Spec section</span></div></div>
+<div class="ab-sec sel"><h6>Field section: Fan selection <span class="eye">👁 Filtered</span></h6><div class="fl"><span>Fan arrangement</span><span>Wheel type</span><span>AMCA spark resistance</span><span>Quantity of fans</span></div></div>
+<div class="ab-sec"><h6>Related lists: Opportunity Products, Quotes</h6></div></div>
+<div class="ab-props"><h6>Field Section</h6><div class="why">Label</div><div class="input">Fan selection</div><div class="why" style="margin-top:10px">Set component visibility</div><div class="flt"><b>Filter:</b> Record › Brand <b>Equal</b> Chicago Fan</div><p class="why" style="margin:10px 0 0">Every other brand sees exactly the page they have today.</p></div></div>`;}
+const actModal=MODAL('Activation: Opportunity – Golden Template v2',`<div style="display:flex; gap:16px; border-bottom:1px solid var(--sf-line); margin-bottom:12px; font-size:13px"><span style="padding:6px 0">Org Default</span><span style="padding:6px 0; border-bottom:3px solid var(--sf-brand-dk); font-weight:600">App Default</span><span style="padding:6px 0">App, Record Type, and Profile</span></div>
+<table class="dt"><tr><th>App</th><th>Current page</th><th>New page</th></tr><tr><td>HVAC Segment</td><td class="diff-del">Opportunity – Golden Template</td><td><b>Opportunity – Golden Template v2</b></td></tr></table>
+<p class="why" style="margin:10px 0 0">Takes effect on the next page load. No deployment, no downtime.</p>`,B('Cancel')+B('Save',{brand:1,hot:1}),{w:720});
+/* 7. Custom metadata */
+const mdtRec=`<div class="om-crumb">Setup › Custom Metadata Types › Brand Configuration › Chicago Fan</div>`
+ +HL('M','i-mdt','Brand Configuration','Chicago Fan',B('Edit')+B('Flows',{brand:1,hot:1}),[['Label','Chicago Fan'],['Protected','No']])
+ +CARD('Attributes the automation reads',F('Live::✓ Ticked at go-live (flows ignore records that are not live)||Business unit::EAM||Brand picklist value::Chicago Fan||Target verticals::Data Center; Healthcare; Other||Routing threshold::$10,000,000||Default currency::USD||Price book (USD)::Chicago Fan 2026 list (USD)||Sends to QTC::No (unchecked)||Golden sales process::Golden Template||Approved deviations::DEV-0008'));
+/* 8. Flow Builder */
+function flowB(o={}){
+ const br=['Cooling','Ingénia','Patterson-Kelley','TAMCO','Chicago Fan'];
+ return `<div class="fb-bar"><span class="t"><b>SPX Opportunity participation</b> <span class="why">Record-triggered: Opportunity, after save</span></span><span class="pill ${o.active||o.sbx?'g':''}">Version 4: ${o.active?'Active':o.sbx?'Active in this sandbox':'Inactive'}</span><span class="why">${o.sbx?'Committed on US-0416':o.active?'Version 3 deactivated':'Saved inactive; version 3 is active'}</span>${B('Save As New Version')}${o.sbx?'':o.active?B('Deactivate'):B('Activate',{brand:1,hot:o.actHot})}</div>
+<div class="fb${o.panel?' panel':''}"><div class="fb-canvas">
+<div class="fe"><span class="ic" style="background:#2E844A">▶</span>Start: Opportunity created or updated</div><div class="fline"></div>
+<div class="fe"><span class="ic" style="background:#E86E3B">G</span>Get Brand Configuration for this brand</div><div class="fline"></div>
+<div class="fe"><span class="ic" style="background:#E86E3B">U</span>Set project brand flag</div><div class="fline"></div>
+<div class="fe${o.panel?' sel':''}" ${o.decHot?'data-go':''}><span class="ic" style="background:#FF9A3C">◇</span>Decision: Which brand?</div><div class="fline"></div>
+<div class="fbranches">${br.map(b=>`<div class="fbr${b==='Chicago Fan'?' new':''}"><span class="lbl">${b}${b==='Chicago Fan'?' (new)':''}</span><div class="fline" style="height:6px"></div><div class="fe"><span class="ic" style="background:#E86E3B">U</span>Set ${b.split(' ')[0]} flag</div></div>`).join('')}</div><div class="fline"></div>
+<div class="fe"><span class="ic" style="background:#FF9A3C">◇</span>Decision: Send to QTC? (reads config)</div><div class="fline"></div>
+<div class="fe"><span class="ic" style="background:#706E6B">■</span>End</div></div>
+${o.panel?`<div class="fb-panel"><h6>Decision: Which brand?</h6><div class="why">Outcome order</div>${br.map(b=>`<div class="cond${b==='Chicago Fan'?' new':''}"><b>${b}</b>${b==='Chicago Fan'?' <span class="pill w">New in version 4</span>':''}<div class="why">{!$Record.Brand__c} Equals "${b}"</div></div>`).join('')}<p class="why" style="margin:10px 0 0">The Chicago Fan outcome flags the project and keeps QTC off, because its configuration says Sends to QTC = No.</p></div>`:''}</div>`;}
+/* 9. Validation rule */
+const VRF=`AND(
+  NOT($Permission.SPX_Bypass_Validation_Rules),
+  ISPICKVAL(Brand__c, "Chicago Fan"),
+  OR(ISPICKVAL(StageName, "3.0 Spec and Influence"),
+     ISPICKVAL(StageName, "4.0 Solution and Proposal"),
+     ISPICKVAL(StageName, "5.0 Negotiate and Close")),
+  OR(ISBLANK(TEXT(Fan_Arrangement__c)),
+     ISBLANK(TEXT(Wheel_Type__c)))
+)`;
+const vrList=CARD('Validation Rules',`<table class="dt"><tr><th>Rule name</th><th>Error location</th><th>Active</th><th>Description</th></tr>
+<tr><td class="lk">Golden_Close_Date_Required</td><td>Close Date</td><td>✓</td><td>All brands</td></tr>
+<tr><td class="lk">Golden_BOD_Status_At_Spec</td><td>BOD status</td><td>✓</td><td>All brands</td></tr>
+<tr class="hot" data-go><td class="lk"><b>CF_Fan_Selection_Before_Spec</b></td><td>Fan arrangement</td><td></td><td>Chicago Fan only</td></tr></table>`,{raw:true});
+const vrEdit=(edit)=>CARD(`Validation Rule ${edit?'Edit':'Detail'}: CF_Fan_Selection_Before_Spec`,`<div class="form-grid" style="margin-bottom:10px"><div><label>Rule name</label><div class="input">CF_Fan_Selection_Before_Spec</div></div><div><label>Active</label><div style="margin-top:6px"><span class="chk${edit?' on':''}"></span>${edit?'<b>Active</b>':'Inactive'}</div></div></div>
+<label class="why">Error condition formula</label><div class="formula">${VRF}</div>
+<div class="form-grid" style="margin-top:10px"><div><label>Error message</label><div class="input">Chicago Fan opportunities need Fan arrangement and Wheel type before moving to 3.0 Spec and influence.</div></div><div><label>Error location</label><div class="input">Field: Fan arrangement</div></div></div>
+<p class="why" style="margin:10px 0 0">The first line skips the rule for users with the bypass permission (the migration user). The second scopes it to Chicago Fan, so no other brand is affected.</p>`,{right:edit?B('Cancel')+B('Save',{brand:1,hot:1}):B('Edit',{brand:1,hot:1})});
+/* 10. Permission set */
+const psa=CARD('Kim Alvarez: Permission Set Assignments',`<div class="form-grid"><div><label>Available permission sets</label><div class="input" style="min-height:70px">SPX Segment Support<br>SPX Segment Visibility<br>SPX ERP Integration</div></div><div><label>Enabled permission sets</label><div class="input" style="min-height:70px">SPX Golden Template User<br><b style="background:var(--sf-brand-lt)">SPX Chicago Fan</b></div></div></div><p class="why" style="margin:10px 0 0">Grants the fan selection fields. Kim's role, Chicago Fan Rep, was set when her user was created.</p>`,{right:B('Cancel')+B('Save',{brand:1,hot:1})});
+/* 11. Kim's opportunity */
+const kimU='spx-hvac.lightning.force.com/lightning/o/Opportunity/new';
+const rtModal=MODAL('New Opportunity',`<p style="margin:0 0 10px; font-size:13px">Select a record type</p><div class="pickrow sel"><span class="radio" style="border:4px solid var(--sf-brand)"></span><div><b>Golden Template – Project Sale</b><div class="why">The standard process for every SPX brand</div></div></div>`,B('Cancel')+B('Next',{brand:1,hot:1}),{w:560});
+const newForm=MODAL('New Opportunity: Golden Template – Project Sale',`<div class="form-grid">
+<div><label>Opportunity name</label><div class="input">Lakemont East Tower – Chicago Fan – Ventilation fans</div></div><div><label>Brand</label><div class="input"><b>Chicago Fan</b></div></div>
+<div><label>Account</label><div class="input">Lakemont Health</div></div><div><label>Project</label><div class="input">P-00977 Lakemont Health East Tower Expansion</div></div>
+<div><label>Stage</label><div class="input">2.0 Needs analysis &amp; qualify</div></div><div><label>Amount</label><div class="input">$120,000</div></div>
+<div><label>Close date</label><div class="input">Jun 30, 2027</div></div><div><label>Rep firm</label><div class="input">Buckeye Air Systems</div></div></div>`,B('Cancel')+B('Save',{brand:1,hot:1}),{w:780});
+function kimOpp(st){
+ const stage=st==='done'?2:1;
+ const pathH=`<div class="card"><div class="path">${GOLD.map((s,i)=>`<span class="${i<stage?'done':i===stage?'cur':(st==='ready'&&i===2?'pick':'')}">${s}</span>`).join('')}</div>${st==='ready'?`<div style="padding:0 12px 10px; text-align:right">${B('Mark as Current Stage',{brand:1,hot:1})}</div>`:''}</div>`;
+ const fan=st==='new'?'Fan arrangement::Required before 3.0 ^hot||Wheel type::Required before 3.0||AMCA spark resistance::||Quantity of fans::'
+  :st==='edit'?'Fan arrangement::Arrangement 4 ^edit||Wheel type::Backward inclined ^edit||AMCA spark resistance::Type B ^edit||Quantity of fans::6 ^edit'
+  :'Fan arrangement::Arrangement 4||Wheel type::Backward inclined||AMCA spark resistance::Type B||Quantity of fans::6';
+ return (st==='done'?TOAST('"Lakemont East Tower – Chicago Fan – Ventilation fans" moved to 3.0 Spec and influence.'):st==='new'?TOAST('Opportunity "Lakemont East Tower – Chicago Fan – Ventilation fans" was created.'):st==='ready'?TOAST('Fan selection saved.'):'')
+ +HL('O','i-opp','Opportunity · Golden Template – Project Sale','Lakemont East Tower – Chicago Fan – Ventilation fans',B('New quote')+B('Edit'),[['Account','Lakemont Health'],['Brand','Chicago Fan'],['Amount','$120,000'],['Owner','Kim Alvarez']])
+ +pathH
+ +`<div class="row c2">`+CARD('Details',`<div class="sec">Golden template (same for every brand)</div>${F('Project::@P-00977 Lakemont Health East Tower Expansion||Business unit::EAM ^lock||Vertical::Healthcare||BOD status::Not yet||Rep firm::@Buckeye Air Systems||Spec section::23 34 16 Centrifugal HVAC fans')}<div class="sec">Fan selection (Chicago Fan only)</div>${F(fan)}${st==='edit'?`<div style="text-align:right; margin-top:10px">${B('Cancel')} ${B('Save',{brand:1,hot:1})}</div>`:''}`)
+ +(st==='done'?''
+  :CARD('Lakemont East Tower',TILE('Brands engaged','4','Chicago Fan added by the flow',{style:'margin-bottom:8px'})+TILE('Total SPX potential','$4.25M','was $4.13M'),{ico:'P',cls:'i-proj'}))+`</div>`;}
+const setupF=(tab,url,body)=>frame({...prd,tab:'Setup:'+tab,url:'spx-hvac.lightning.force.com/lightning/setup/'+url},body);
+const omF=(url,body)=>frame({...prd,tab:'Setup:Object Manager',url:'spx-hvac.lightning.force.com/lightning/setup/ObjectManager/Opportunity/'+url},body);
+const kimF=(url,body)=>frame({env:'prod',tab:'Opportunities',url,who:WHO.kim},body);
+const kimRec='spx-hvac.lightning.force.com/lightning/r/Opportunity/0068c00000CF1/view';
+const abF=(body)=>frame({...prd,tab:'Setup:Object Manager',url:'spx-hvac.lightning.force.com/visualEditor/appBuilder.app?pageId=0M08c000000CF1'},body);
+const flF=(body)=>frame({...prd,tab:'Setup:Flows',url:'spx-hvac.lightning.force.com/builder_platform_interaction/flowBuilder.app?flowId=3018c000000SPX'},body);
+
+
+const brandStatus6=CARD('Setup › Custom Metadata › Brand Configuration',`<table class="dt"><tr><th>Brand</th><th>BU</th><th>Sends to QTC</th><th>Status</th></tr>
+<tr><td>Cooling</td><td>Cooling</td><td>Yes</td><td><span class="pill g">Live</span></td></tr><tr><td>Ingénia</td><td>cAHU</td><td>No</td><td><span class="pill g">Live</span></td></tr><tr><td>Patterson-Kelley</td><td>Hydronics</td><td>No</td><td><span class="pill g">Live</span></td></tr><tr><td>TAMCO</td><td>EAM</td><td>No</td><td><span class="pill g">Live</span></td></tr>
+<tr class="dim"><td>Chicago Fan</td><td>EAM</td><td>No</td><td><span class="pill">Pre-built, not active</span></td></tr></table>
+<p class="why" style="margin:8px 12px 10px">Live org. Chicago Fan's components are built but inactive: its brand value can't be selected and no user has access.</p>`,{raw:true});
+const prdFlow=(body)=>frame({env:'prod',tab:'Setup:Flows',url:'spx-hvac.lightning.force.com/builder_platform_interaction/flowBuilder.app?flowId=3018c000000SPX',who:WHO.sam},body);
+
+
+/* Configure: two sales processes coexist on Opportunity (transition architecture) */
+const rtList=CARD('Record Types',`<table class="dt"><tr><th>Record Type Label</th><th>Sales Process</th><th>Active</th><th>Assigned to</th><th>Description</th></tr>
+<tr><td class="lk">Golden Template – Project Sale</td><td>Golden Template (1.0 to 5.0)</td><td>✓</td><td>All brand profiles</td><td>Every brand on the golden template, and all net-new Cooling opportunities</td></tr>
+<tr><td class="lk">Cooling – Legacy</td><td>Cooling Legacy (Qualify to Closed)</td><td>✓</td><td>Cooling users only; not available for new records</td><td>Existing Cooling opportunities until they close or are migrated</td></tr></table>`,{raw:true});
+/* Isolate: bypass framework with custom permissions */
+const bypassPS=`<div class="om-crumb">Setup › Permission Sets › SPX Migration Bypass</div>`
+ +CARD('Permission Set: SPX Migration Bypass',F('Label::SPX Migration Bypass||Description::Lets migration and integration users load data without triggering validation rules or record-triggered flows meant for sales users||License::Salesforce'))
+ +`<div class="row c2">`+CARD('Custom Permissions (2)',`<table class="dt"><tr><th>Custom Permission</th><th>Checked by</th></tr><tr><td>SPX_Bypass_Validation_Rules</td><td>Every SPX validation rule: NOT($Permission.SPX_Bypass_Validation_Rules)</td></tr><tr><td>SPX_Bypass_Automation</td><td>Entry conditions of every SPX record-triggered flow</td></tr></table>`,{raw:true})
+ +CARD('Assigned Users (1)',`<table class="dt"><tr><th>Full Name</th><th>Profile</th></tr><tr><td>Migration User</td><td>SPX Integration</td></tr></table><p class="why" style="margin:8px 12px 10px">Not assigned to any sales user.</p>`,{raw:true})+`</div>`;
+/* Transition: migration load by the migration user */
+const bulkJob=`<div class="om-crumb">Setup › Bulk Data Load Jobs</div>`+CARD('Bulk Data Load Jobs',`<table class="dt"><tr><th>Job ID</th><th>Object</th><th>Operation</th><th>Submitted By</th><th>Status</th><th class="num">Records Processed</th><th class="num">Records Failed</th></tr>
+<tr class="new"><td class="lk">7508c00000CF01</td><td>Opportunity</td><td>Insert</td><td>Migration User</td><td>Closed</td><td class="num">38</td><td class="num">0</td></tr>
+<tr><td class="lk">7508c00000CF00</td><td>Account</td><td>Upsert</td><td>Migration User</td><td>Closed</td><td class="num">214</td><td class="num">0</td></tr></table>`,{raw:true});
+
+SC.push({key:'s6',label:'6★ New brand',star:true,title:'Onboard a new brand into a live org',screens:[
+ {html:omF('RecordTypes',OM('Record Types',rtList)),do:'Show the two record types and sales processes, then start configuring.',say:'Step 6 is the question SPX is really asking: can we keep operating while we bring another brand onto this platform? This is how. Two sales processes coexist on the same object, in the same live org. The golden template is used by every brand being onboarded and by all net-new Cooling deals. Cooling\'s existing opportunities stay on their legacy process until they close or are migrated, so nobody has to switch mid-deal. The story is Configure, Isolate, Validate, Transition.',watch:'Long term, the target is one golden template with as few variations as possible. The legacy record type is a transition construct, not a second standard.',switchTo:'Configure: activate Chicago Fan'},
+ {html:setupF('Picklist Value Sets','Picklists/page?address=%2F0Nt8c000000BRAND',gvs(false)),do:'Click Activate next to Chicago Fan under Inactive Values.',say:'Configure. Chicago Fan has been built here already against the golden template, but nothing is switched on: no one can select it and no one has access. One: the brand value. It already exists but is inactive, so nobody could pick it. In a program with separate environments, everything we are about to switch on would arrive by change set first; activation is the same either way.'},
+ {html:frame({...prd,tab:'Setup:Picklist Value Sets',tabHot:'Object Manager',url:'spx-hvac.lightning.force.com/lightning/setup/Picklists/page?address=%2F0Nt8c000000BRAND'},TOAST('Chicago Fan is now active on the Brand value set.')+gvs(true)),do:'Show it active, then click Object Manager.',say:'Active. Nothing else changes for the other brands.'},
+ {html:omF('FieldsAndRelationships',OM('Fields & Relationships',fieldsCard,'Lightning Record Pages')),do:'Show the four fan fields, then click Lightning Record Pages.',say:'The fan selection fields were built in advance and are limited to the Chicago Fan permission set. Nobody sees them yet.'},
+ {html:omF('LightningPages',OM('Lightning Record Pages',lrpList)),do:'Open "Opportunity – Golden Template v2".',say:'Two: the page. The new version adds a Fan selection section shown only when Brand is Chicago Fan. It is built, and not active.'},
+ {html:abF(appBuilder({actHot:1})),do:'Point at the section\'s visibility filter, then click Activation.',say:'Same golden page plus one section, filtered to Chicago Fan, so every other brand\'s page is unchanged.'},
+ {html:abF(actModal),do:'Click Save to make it the HVAC Segment app default.',say:'It replaces the current page for the HVAC Segment app. Takes effect on the next page load.'},
+ {html:setupF('Custom Metadata','CustomMetadata/Brand_Configuration/Cincinnati_Fan',mdtRec),do:'Show the attributes, then click Flows.',say:'Three: the Brand Configuration record, pre-built with business unit, verticals, routing threshold, price book, and Sends to QTC unticked. We tick Live; until now every flow ignored it, so no leads or routing for Chicago Fan could start early.'},
+ {html:prdFlow(flowB({panel:1,actHot:1})),do:'Show version 4 inactive alongside version 3 active, then click Activate.',say:'Four: the flow. Version 4 adds the Chicago Fan branch and was saved inactive. Version 3 is still running. Activating swaps them, and rollback is reactivating version 3. Its entry condition skips anyone with the bypass permission, which matters in a moment.'},
+ {html:frame({env:'prod',tab:'Setup:Flows',tabHot:'Object Manager',url:'spx-hvac.lightning.force.com/builder_platform_interaction/flowBuilder.app?flowId=3018c000000SPX',who:WHO.sam},TOAST('Version 4 of "SPX Opportunity participation" is active. Version 3 was deactivated.')+flowB({active:1}).replace(/ data-go/g,'')),do:'Show version 4 active, then click Object Manager.',say:'Version 4 is live.'},
+ {html:omF('ValidationRules',OM('Validation Rules',vrList)),do:'Open CF_Fan_Selection_Before_Spec.',say:'Five: the validation rule, built and inactive.'},
+ {html:omF('ValidationRules/CF_Fan_Selection_Before_Spec/view',OM('Validation Rules',vrEdit(false))),do:'Show the formula, then click Edit.',say:'The first line scopes it to Chicago Fan, so no other brand is affected.'},
+ {html:omF('ValidationRules/CF_Fan_Selection_Before_Spec/edit',OM('Validation Rules',vrEdit(true))),do:'Tick Active and click Save.',say:'Active. Configuration, not code.'},
+ {html:setupF('Permission Sets','PermSets/SPX_Migration_Bypass',bypassPS),do:'Show the two custom permissions and the single assigned user.',say:'Isolate. Every SPX validation rule and record-triggered flow checks a custom permission, so automation meant for sales users can be switched off for one controlled user: the migration user. That is how we load a brand\'s data without firing sales rules or flows, and without touching anyone else\'s experience. The Live flag on Brand Configuration and the filtered page section are the other isolation controls you just saw.',watch:'Feature controls by user and profile, not code. Some components, for example dependent objects or OmniStudio, still need to be released in sequence; that goes in the cutover plan.',switchTo:'Give Kim access'},
+ {html:setupF('Users','ManageUsers/Kim_Alvarez/PermissionSetAssignments',psa),do:'Click Save to assign SPX Chicago Fan to Kim.',say:'Kim\'s user and role were set up in advance; the permission set gives her the fan fields. Her profile only has the Golden Template record type.',switchTo:'Validate: log in as Kim (Chicago Fan)'},
+ {html:kimF(kimU,newForm),do:'As Kim, show the new opportunity form, then click Save.',say:'Validate the new brand. Kim creates a Chicago Fan pursuit on the same Lakemont project the other brands are on. Her profile only has the Golden Template record type, so there is no process to choose.'},
+ {html:kimF(kimRec,kimOpp('new')),do:'Point at the Fan selection section and the project tile, then click the Fan arrangement field.',say:'The section from the activated page appears because the brand is Chicago Fan, and the flow\'s new branch has already added Chicago Fan to the project. The fields say they are required before 3.0, so Kim completes them first.'},
+ {html:kimF(kimRec,kimOpp('edit')),do:'Fill in the fan selection, then click Save.',say:'Arrangement 4, backward inclined, Type B spark resistance, six fans.'},
+ {html:kimF(kimRec,kimOpp('ready')),do:'Select 3.0 on the Path and click Mark as Current Stage.',say:'Now the stage move. The validation rule we just activated checks the fan selection is complete; it is, so the change saves.'},
+ {html:kimF(kimRec,kimOpp('done')),do:'Show the opportunity at 3.0 with the fan selection complete.',say:'Kim is on the golden template, with her brand\'s one approved variation, and every piece was configuration. Meanwhile Cooling\'s existing deals carry on on the legacy process; in the program a scripted regression test confirms that before every release.',switchTo:'Transition: migrate Chicago Fan\'s data'},
+ {html:setupF('Bulk Data Load Jobs','AsyncApiJobStatus/home',bulkJob),do:'Show the two loads by the Migration User, then summarize the cutover.',say:'Transition. Chicago Fan\'s accounts and 38 open opportunities were loaded by the migration user, so validation rules and flows were bypassed; the project totals are recalculated afterwards. For Cooling there are two options: migrate legacy opportunities onto the golden template when the business is ready, or let them finish on the legacy process while every new deal starts on the golden template. Either way: configure, isolate, validate, transition, with no big bang and no downtime.',end:true},
+]});
+
+/* Kim's finished opportunity, reused by tab 8 (without the save toast) */
+const cfOpp=kimOpp('done').replace(/<div class="toast[^"]*">.*?<\/div>/,'');
+/* ======================= SCENARIO 7: native Lightning dashboard (max 3 filters) and report drill-through ======================= */
+const pri7={tab:'Dashboards',url:'spx-hvac.lightning.force.com/lightning/r/Dashboard/01Z8c000000Seg/view',who:WHO.priya};
+const hb=(l,v,segs,hot)=>`<div class="hbar" ${hot?'data-go':''}><span>${l}</span><span class="track">${segs.map(([p,c])=>`<i style="width:${p}%; background:${c}"></i>`).join('')}</span><span class="val">${v}</span></div>`;
+function dash7(o){
+ const S=o.strat, H=o.hc, mode=H?'hc':S?'strat':'all';
+ const D={
+  all:{pipe:o.fresh?'$988.4M':'$988.3M',proj:'41',bod:'42%',att:'43%',win:'61%',
+       bu:[['Cooling','$610.0M',[[100,'#0176D3']]],['cAHU','$214.3M',[[35.1,'#0B827C']]],['EAM',o.fresh?'$96.1M':'$96.0M',o.fresh?[[15.1,'#F4BC25'],[0.8,'#BA0517']]:[[15.7,'#F4BC25']]],['Hydronics','$68.0M',[[11.1,'#9050E9']]]],
+       stage:[['1.0 Prospect','$211.3M',96],['2.0 Qualify','$268.9M',88],['3.0 Spec','$246.7M',78],['4.0 Proposal','$180.4M',64],['5.0 Close','$81.1M',46]],
+       phase:[['Planning',62],['Schematic Design',91],['Design Development',108],['Construction Documents',77],['Bid',51],['Awarded',23]]},
+  strat:{pipe:'$331.6M',proj:'41',bod:'48%',att:'43%',win:'61%',
+       bu:[['Cooling','$196.4M',[[100,'#0176D3']]],['cAHU','$88.2M',[[44.9,'#0B827C']]],['EAM','$27.2M',[[13.0,'#F4BC25'],[0.8,'#BA0517']]],['Hydronics','$19.8M',[[10.1,'#9050E9']]]],
+       stage:[['1.0 Prospect','$67.2M',96],['2.0 Qualify','$89.4M',88],['3.0 Spec','$87.9M',80],['4.0 Proposal','$60.1M',62],['5.0 Close','$27.0M',44]],
+       phase:[['Planning',5],['Schematic Design',8],['Design Development',13],['Construction Documents',8],['Bid',4],['Awarded',3]]},
+  hc:{pipe:'$96.8M',proj:'12',bod:'50%',att:'50%',win:'64%',
+       bu:[['Cooling','$31.5M',[[64.8,'#0176D3']]],['cAHU','$48.6M',[[100,'#0B827C']]],['EAM','$7.3M',[[13.8,'#F4BC25'],[1.2,'#BA0517']]],['Hydronics','$9.4M',[[19.3,'#9050E9']]]],
+       stage:[['1.0 Prospect','$18.4M',96],['2.0 Qualify','$26.1M',88],['3.0 Spec','$27.8M',80],['4.0 Proposal','$17.2M',62],['5.0 Close','$7.3M',44]],
+       phase:[['Planning',1],['Schematic Design',3],['Design Development',5],['Construction Documents',2],['Bid',1],['Awarded',0]]}}[mode];
+ const maxP=Math.max(...D.phase.map(p=>p[1]))||1;
+ const drop=(vals,hotV)=>`<span style="position:absolute; left:0; top:30px; width:190px; background:#fff; border:1px solid var(--sf-line2); border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,.18); z-index:6; display:block">${vals.map(v=>`<span class="pickrow" style="border:0; margin:0; display:flex" ${v===hotV?'data-go':''}>${v}</span>`).join('')}</span>`;
+ const filt=(l,v,hot,dd)=>`<span style="position:relative; display:inline-block"><span class="dfilter btn" ${hot?'data-go':''}>${l}: ${v} ▾</span>${dd||''}</span>`;
+ /* Lightning Table component: one row per opportunity from an Opportunities-with-Project report */
+ const rows=H?[['Lakemont Health East Tower Expansion','Design Development','Ingénia','3.0 Spec','$3.60M'],['Lakemont Health East Tower Expansion','Design Development','Cooling','4.0 Proposal','$0.21M'],['Lakemont Health East Tower Expansion','Design Development','Patterson-Kelley','2.0 Qualify','$0.32M'],['Lakemont Health East Tower Expansion','Design Development','Chicago Fan','3.0 Spec','$0.12M'],['Westfield Regional Medical Center','Schematic Design','Ingénia','1.0 Prospect','$2.70M'],['Lakeview Children\'s Hospital Pavilion','Schematic Design','Cooling','3.0 Spec','$0.25M']]
+  :[['Lakemont Health East Tower Expansion','Design Development','Ingénia','3.0 Spec','$3.60M'],['Lakemont Health East Tower Expansion','Design Development','Cooling','4.0 Proposal','$0.21M'],['Lakemont Health East Tower Expansion','Design Development','Patterson-Kelley','2.0 Qualify','$0.32M'],['Lakemont Health East Tower Expansion','Design Development','Chicago Fan','3.0 Spec','$0.12M'],['Northpoint Data Center Campus, Building C','Construction Documents','TAMCO','3.0 Spec','$0.60M'],['Westfield Regional Medical Center','Schematic Design','Ingénia','1.0 Prospect','$2.70M']];
+ return `<div class="card" style="margin-bottom:12px"><div class="card-h" style="flex-wrap:wrap"><span class="ico i-dash">D</span><h5>HVAC segment <span class="why">As of ${o.fresh?'today 11:31 AM':'today 9:14 AM'}</span></h5>${B('Subscribe')}${B('Refresh',{brand:1,hot:o.refreshHot})}</div>
+ <div class="card-b" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">${filt('Business unit','All')}${filt('Vertical',H?'Healthcare':'All',o.emHot,o.emDrop?drop(['All','Healthcare','Education','Multifamily','Data Center','Other'],'Healthcare'):'')}${filt('Strategic project',S?'True':'All',o.stratHot,o.stratDrop?drop(['All','True','False'],'True'):'')}</div></div>`
+ +`<div class="row" style="grid-template-columns:repeat(5,1fr); margin-bottom:12px">${TILE('Open pipeline',D.pipe,S?'Strategic projects only':'All open opportunities')}${TILE('Strategic large projects',D.proj,'Over $100M construction value')}${TILE('BOD / spec rate',D.bod,'Opportunities at 3.0 or later')}${TILE('Strategic project attachment',D.att,'2 or more SPX brands')}${TILE('Win rate, BOD secured',D.win,'Last 12 months')}</div>`
+ +`<div class="row c3">`
+ +CARD('Open pipeline by BU and brand',D.bu.map(([l,v,s])=>hb(l,v,s,o.eamHot&&l==='EAM')).join('')+`<div class="legend"><span><i style="background:#0176D3"></i>Cooling</span><span><i style="background:#0B827C"></i>Ingénia</span><span><i style="background:#9050E9"></i>Patterson-Kelley</span><span><i style="background:#F4BC25"></i>TAMCO</span>${o.fresh?'<span><i style="background:#BA0517"></i>Chicago Fan</span>':''}</div>`)
+ +CARD('Brand opportunity stage',`<div class="funnel">${D.stage.map((r,i)=>`<div style="width:${r[2]}%; background:${['#5867E8','#3C97DD','#0B827C','#2E844A','#014486'][i]}">${r[0]} · ${r[1]}</div>`).join('')}</div>`)
+ +CARD('Projects by project phase',D.phase.map(([l,n])=>`<div class="hbar" style="grid-template-columns:150px 1fr 30px"><span>${l}</span><span class="track"><i style="width:${n/maxP*100}%; background:#706E6B"></i></span><span class="val">${n}</span></div>`).join(''))
+ +`</div><div class="row c2">`
+ +CARD('Projects',`<table class="dt"><tr><th>Project</th><th>Project phase</th><th>Brand</th><th>Opportunity stage</th><th class="num">Potential</th></tr>${rows.map(r=>`<tr><td class="lk">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="num">${r[4]}</td></tr>`).join('')}</table>`,{ico:'P',cls:'i-proj',raw:true})
+ +CARD('Strategic project attachment by vertical',[['Healthcare',50],['Education',40],['Multifamily',33],['Data Center',60],['Other',20]].map(([v,p])=>`<div class="hbar"><span>${v}</span><span class="track"><i style="width:${p}%; background:${H&&v!=='Healthcare'?'#C9C9C9':'#0176D3'}"></i></span><span class="val">${p}%</span></div>`).join(''))
+ +`</div>`;}
+/* Source report opened by clicking the EAM bar: Lightning report run page, filtered to the clicked value */
+const report7=`<div class="om-crumb">Reports › Open pipeline by BU and brand</div>`
+ +HL('R','i-dash','Report: Opportunities','Open pipeline by BU and brand',B('Edit')+B('Refresh'),[['Filtered by','Business unit equals EAM · Open'],['Total records','214'],['Total amount','$96,120,000']])
+ +CARD('Chart','<div class="hbar" style="grid-template-columns:120px 1fr 80px"><span>TAMCO</span><span class="track"><i style="width:99%; background:#F4BC25"></i></span><span class="val">$96.0M</span></div><div class="hbar" style="grid-template-columns:120px 1fr 80px"><span>Chicago Fan</span><span class="track"><i style="width:1%; background:#BA0517"></i></span><span class="val">$0.12M</span></div>')
+ +CARD('Brand ↑ (summary report, grouped by Brand)',`<table class="dt"><tr><th>Brand</th><th>Opportunity name</th><th>Stage</th><th>Project</th><th class="num">Amount</th></tr>
+<tr><td colspan="4"><b>Chicago Fan (1)</b></td><td class="num"><b>$120,000</b></td></tr>
+<tr class="new"><td></td><td class="lk">Lakemont East Tower – Chicago Fan – Ventilation fans</td><td>3.0 Spec and Influence</td><td>Lakemont Health East Tower Expansion</td><td class="num">$120,000</td></tr>
+<tr><td colspan="4"><b>TAMCO (213)</b></td><td class="num"><b>$96,000,000</b></td></tr>
+<tr><td></td><td class="lk">Northpoint DC Bldg C – TAMCO – Dampers</td><td>3.0 Spec and Influence</td><td>Northpoint Data Center Campus, Building C</td><td class="num">$600,000</td></tr>
+<tr><td></td><td class="lk">Columbus State Library – TAMCO – Dampers</td><td>1.0 Prospect and Market ID</td><td>Columbus State Library Renovation</td><td class="num">$150,000</td></tr>
+<tr class="dim"><td></td><td colspan="4">… detail rows continue (scroll)</td></tr>
+<tr><td colspan="4"><b>Total (214)</b></td><td class="num"><b>$96,120,000</b></td></tr></table>
+<div style="display:flex; gap:16px; padding:8px 12px; font-size:12px; border-top:1px solid var(--sf-line)"><span><span class="tgl on"><i></i></span> Row counts</span><span><span class="tgl on"><i></i></span> Detail rows</span><span><span class="tgl on"><i></i></span> Subtotals</span><span><span class="tgl on"><i></i></span> Grand total</span></div>`,{raw:true});
+SC.push({key:'s7',label:'7 Dashboard',title:'A segment dashboard across BUs',screens:[
+ {html:frame(pri7,dash7({refreshHot:1})),do:'Click Refresh.',say:'The segment dashboard, with the three standard dashboard filters: business unit, vertical and strategic project. Priya is subscribed to it weekly.',rec:'Agree the KPI definitions in Blueprint, so no brand disputes what a number means. Turn every intervention into a task so follow-up is tracked, not lost in email.',watch:'Lightning dashboards allow up to 3 filters, and filters are not applied in subscription emails.'},
+ {html:frame(pri7,dash7({fresh:1,eamHot:1})),do:'Point at the Chicago Fan sliver, then click the EAM bar.',say:'Everything from today is here, including Chicago Fan on the EAM bar. Clicking a chart opens its source report, filtered to what you clicked.'},
+ {html:frame({...pri7,tab:'Reports',tabHot:'Dashboards',url:'spx-hvac.lightning.force.com/lightning/r/Report/00O8c000004EAM/view?fv0=EAM'},report7),do:'Show the chart, the grouping and the detail rows, then return to the dashboard.',say:'The standard report run page: the same chart, grouped by brand, with subtotals and the detail rows underneath. Every number drills to real records.',watch:'Return with the browser Back button or the Dashboards tab.'},
+ {html:frame(pri7,dash7({fresh:1,stratHot:1})),do:'Click the Strategic project filter.',say:'Now the See More, Win More lens.'},
+ {html:frame(pri7,dash7({fresh:1,stratDrop:1})),do:'Choose True.',say:'Strategic project is a checkbox set by a flow, because dashboard filters can\'t use formula fields.'},
+ {html:frame(pri7,dash7({fresh:1,strat:1,emHot:1})),do:'Point at the project-phase chart, then click the Vertical filter.',say:'41 strategic projects; 13 are in Design Development, where the BOD is won. Now the verticals you told us you target.'},
+ {html:frame(pri7,dash7({fresh:1,strat:1,emDrop:1})),do:'Choose Healthcare.',say:'Healthcare, Education, Multifamily and Data Center: the four verticals in your RFP.'},
+ {html:frame(pri7,dash7({fresh:1,strat:1,hc:1})),do:'Close on the Projects table, row by row.',say:'Twelve strategic healthcare projects. Lakemont is in Design Development while its four brands sit at three different commercial stages, from 2.0 to 4.0. That is exactly why the Project parent matters.',end:true},
+]});
+/* ================= Agentforce + In-App Guidance woven into the seven scenarios ================= */
+window.ORIG=Object.fromEntries(SC.map(s=>[s.key,s.screens.slice()]));
+(function(){
+const strip=h=>h.replace(/ data-go(?=[\s>])/g,'');
+const find=k=>SC.find(s=>s.key===k);
+function withAgent(h,panel){return strip(h).replace('<div class="sf-body"><!--B-->','<div class="sf-body"><div class="with-agent"><div class="main-col"><!--B-->').replace('<!--/B--></div>','<!--/B--></div>'+panel+'</div></div>').replace('<div class="g-icons">','<div class="g-icons"><span class="af-ico on">✦</span>');}
+function withOverlay(h,ov){return strip(h).replace('<!--/B-->',ov+'<!--/B-->');}
+function anchor(h,tag,name,ctx){const i=h.indexOf(tag+(ctx||'')); if(i<0){console.error('anchor missing',name); return h;} const end=i+tag.length-1; return h.slice(0,end)+` data-anchor="${name}"`+h.slice(end);}
+function AF(msgs,o={}){
+  const m=msgs.map(x=>x.u?`<div class="af-u">${x.u}</div>`:x.chips?`<div class="af-chips">${x.chips.map((c,i)=>`<span class="af-chip" ${x.hot===i?'data-go':''}>${c}</span>`).join('')}</div>`:x.files?`<div>${x.files.map(f=>`<span class="af-file">📎 ${f}</span>`).join('')}</div>`:`<div class="af-a">${x.a}</div>`).join('');
+  return `<aside class="af"><div class="af-h"><span class="af-logo">✦</span><div>Agentforce<div class="af-sub">${o.sub||'Sales assistant'}</div></div><span class="x">✕</span></div><div class="af-msgs">${m}</div><div class="af-in"><div class="input">Ask Agentforce...</div><div class="af-note">Illustrative. Responses are generated from records you can access; check before acting.</div></div></aside>`;}
+const used=t=>`<div class="af-used">Used: ${t}</div>`;
+const acts=(arr,hot)=>`<div class="af-act">${arr.map((a,i)=>`<span class="btn${i===hot?' brand':''}" ${i===hot?'data-go':''}>${a}</span>`).join('')}</div>`;
+const hero=(label)=>`<div class="iag-hero"><i style="width:160px;height:160px;right:-30px;top:-60px"></i><i style="width:90px;height:90px;right:120px;top:40px"></i><i style="width:50px;height:50px;left:40%;top:-15px"></i><span>${label}</span></div>`;
+function FLOAT(step,title,body,primary,o={}){return `<div class="iag-float">${hero(o.hero||'SPX HVAC Segment')}<div class="iag-b"><div class="iag-step">${step}</div><h6>${title}</h6><p>${body}</p><div class="iag-f"><span class="lk">${o.secondary||'Remind me later'}</span><span style="display:flex;gap:10px;align-items:center">${o.extra||''}<span class="btn brand" data-go>${primary}</span></span></div></div></div>`;}
+function TARGET(id,side,step,title,body,primary){return `<div class="iag-target" data-for="${id}" data-side="${side}"><span class="iag-arr"></span><div class="iag-b"><div class="iag-step">${step}</div><h6>${title}</h6><p>${body}</p><div class="iag-f"><span class="lk">Dismiss</span><span class="btn brand" data-go>${primary}</span></div></div></div>`;}
+function DOCK(title,body,primary){return `<div class="iag-dock"><div class="dk-h"><span>${title}</span><span>✕</span></div><div class="iag-b" style="padding:12px 14px">${body}<div class="iag-f"><span class="lk">Show me again next Monday</span><span class="btn brand" data-go>${primary}</span></div></div></div>`;}
+function ins(key,idx,arr){find(key).screens.splice(idx,0,...arr.map(x=>({feat:x.kind,...x})));}
+const IAGB='Configured in Setup › In-App Guidance, no code. ';
+const AIB='Agentforce is a roadmap capability, separately licensed and consumption-based; we have not assumed it in Foundation scope. A non-agentic version of the same outcome is possible with flows and reports. ';
+
+/* ---------------- 1. Lead from feed: summarize the lead ---------------- */
+{const o=find('s1').screens; const lead=o[3].html;
+ 
+ ins('s1',3,[{kind:'ai',
+   html:withAgent(lead,AF([{a:'<p>Hi Dana. This lead was created from the ConstructConnect sync. What would you like to do?</p>'},{chips:['Summarize this lead','Prioritize my new leads','Draft an intro email to Rachel Tran'],hot:0}])),
+   do:'Open the Agentforce panel and click "Summarize this lead".',
+   say:'Before Dana picks up the phone, she asks Agentforce for a summary of the lead.',
+   build:AIB+'Standard Summarize action on the Lead, using a Prompt Builder record summary template grounded on the Lead and its Project.'},
+  {kind:'ai',
+   html:withAgent(lead,AF([{u:'Summarize this lead'},{a:`<p><b>Westfield Regional Medical Center</b>, Dublin, OH</p>
+<ul><li><b>Project:</b> $148M healthcare project in Schematic Design, so the basis of design is still open. A strategic large project (over $100M).</li>
+<li><b>Owner contact:</b> Rachel Tran, Director of Facilities Planning, Lakemont Health.</li>
+<li><b>Engineer:</b> Kessler MEP, also the engineer on Lakemont East Tower, where Ingénia holds the BOD.</li>
+<li><b>Why it's yours:</b> Ohio Valley territory and Ingénia's healthcare vertical, above the $25M routing threshold.</li>
+<li><b>Recommended potential:</b> $2.7M for Ingénia.</li>
+<li><b>Other brands:</b> Cooling and Patterson-Kelley also received leads for this project.</li></ul>
+${acts(['Done'],0)}${used('Get lead · Get project')}`}])),
+   do:'Read the summary, then click Done.',
+   say:'Everything she needs before the first call, in one place, including the link nobody had made: the same engineer is on both Lakemont projects.',
+   build:AIB+'Summary only; no records are created or changed.'},
+  {kind:'iag',
+   html:withOverlay(anchor(strip(lead),'<span class="btn brand">','convert','Convert'),TARGET('convert','left','Step 2 of 2 · Working a new lead','Qualified? Convert it','Converting creates the contact and opens the opportunity on the golden template. If Salesforce finds a matching account, choose it so the customer exists only once.','Finish')),
+   do:'Show the guidance on the Convert button, then click Finish.',
+   say:'Guidance shows the recommended next step and the one rule that matters: reuse the existing account.',
+   build:IAGB+'Targeted prompt anchored to the Convert action on the Lead page, for reps on newly onboarded brands.'}]);
+ 
+}
+
+/* ---------------- 7. Dashboard ---------------- */
+{const o=find('s7').screens; const d3=o[3].html, d0=o[0].html;
+ ins('s7',3,[{kind:'ai',
+   html:withAgent(d3,AF([{u:'Please can you summarize the health of the segment'},{a:`<p><b>Overall:</b> healthy pipeline, with conversion risk in the middle of the funnel.</p>
+<ul><li><b>Pipeline:</b> $988.4M open across four BUs; Cooling is 62% of it, cAHU 22%, EAM 10%, Hydronics 7%.</li>
+<li><b>Stage mix:</b> most value sits at 2.0 and 3.0 ($515.6M together); $81.1M is at 5.0 Negotiate and Close.</li>
+<li><b>Basis of design:</b> 42% of opportunities at 3.0 or later have the BOD secured. $126.4M at 3.0 or later has no BOD yet, the biggest risk to win rate.</li>
+<li><b>Strategic projects:</b> 41 projects over $100M; 43% have two or more SPX brands engaged.</li>
+<li><b>Newest brand:</b> Chicago Fan is live, with its first opportunity on Lakemont East Tower.</li></ul>
+${acts(['Done'],0)}${used('Read dashboard source reports')}`}],{sub:'Pipeline insights'})),
+   do:'Read the summary, then click Done.',
+   say:'The dashboard shows the numbers; the agent summarizes what they mean for the segment in plain language.',
+   build:AIB+'Topic "Pipeline insights" over the dashboard\'s source reports. Summary only; nothing is created or changed.'}]);
+ 
+}
+})();
+/* ================= More In-App Guidance and Agentforce, step by step ================= */
+(function(){
+const strip=h=>h.replace(/ data-go(?=[\s>])/g,'');
+const find=k=>SC.find(s=>s.key===k);
+function withAgent(h,panel){return strip(h).replace('<div class="sf-body"><!--B-->','<div class="sf-body"><div class="with-agent"><div class="main-col"><!--B-->').replace('<!--/B--></div>','<!--/B--></div>'+panel+'</div></div>').replace('<div class="g-icons">','<div class="g-icons"><span class="af-ico on">✦</span>');}
+function withOverlay(h,ov){return strip(h).replace('<!--/B-->',ov+'<!--/B-->');}
+function anchor(h,tag,name,ctx){h=strip(h); const i=h.indexOf(tag+(ctx||'')); if(i<0){console.error('anchor missing',name); return h;} const end=i+tag.length-1; return h.slice(0,end)+` data-anchor="${name}"`+h.slice(end);}
+function AF(msgs,o={}){
+  const m=msgs.map(x=>x.u?`<div class="af-u">${x.u}</div>`:x.chips?`<div class="af-chips">${x.chips.map((c,i)=>`<span class="af-chip" ${x.hot===i?'data-go':''}>${c}</span>`).join('')}</div>`:`<div class="af-a">${x.a}</div>`).join('');
+  return `<aside class="af"><div class="af-h"><span class="af-logo">✦</span><div>Agentforce<div class="af-sub">${o.sub||'Sales assistant'}</div></div><span class="x">✕</span></div><div class="af-msgs">${m}</div><div class="af-in"><div class="input">Ask Agentforce...</div><div class="af-note">Illustrative. Responses are generated from records you can access; check before acting.</div></div></aside>`;}
+const used=t=>`<div class="af-used">Used: ${t}</div>`;
+const acts=(arr,hot)=>`<div class="af-act">${arr.map((a,i)=>`<span class="btn${i===hot?' brand':''}" ${i===hot?'data-go':''}>${a}</span>`).join('')}</div>`;
+function TARGET(id,side,step,title,body,primary){return `<div class="iag-target" data-for="${id}" data-side="${side}"><span class="iag-arr"></span><div class="iag-b"><div class="iag-step">${step}</div><h6>${title}</h6><p>${body}</p><div class="iag-f"><span class="lk">Dismiss</span><span class="btn brand" data-go>${primary||'Got it'}</span></div></div></div>`;}
+function DOCK(title,body,primary){return `<div class="iag-dock"><div class="dk-h"><span>${title}</span><span>✕</span></div><div class="iag-b" style="padding:12px 14px">${body}<div class="iag-f"><span class="lk">Don't show again</span><span class="btn brand" data-go>${primary||'Got it'}</span></div></div></div>`;}
+/* insert before an ORIGINAL screen; where='start' goes before any layer screens already in front of it */
+function ins2(key,idx,arr,where){const S=find(key), target=ORIG[key][idx]; let pos=S.screens.indexOf(target);
+  if(where==='start') while(pos>0 && S.screens[pos-1].kind) pos--;
+  S.screens.splice(pos,0,...arr.map(x=>({feat:x.kind,...x})));}
+const H=(k,i)=>ORIG[k][i].html;
+const IAGB='Configured in Setup › In-App Guidance, no code. ';
+const AIB='Agentforce is a roadmap capability, separately licensed and consumption-based; not assumed in Foundation scope. ';
+const chipPair=(base,sub,intro,chips,q,answer,o)=>[
+  {kind:'ai',html:withAgent(base,AF([{a:`<p>${intro}</p>`},{chips,hot:0}],{sub})),...o[0]},
+  {kind:'ai',html:withAgent(base,AF([{u:q},{a:answer}],{sub})),...o[1]}];
+
+/* ---------------- 1. Lead from feed ---------------- */
+ins2('s1',0,[...chipPair(H('s1',0),'Segment operations','Good morning, Sam. The automated ConstructConnect sync brought in 4 projects.',['Summarize the latest feed','Which new projects are strategic?','What was held, and why?'],'Summarize the latest feed',
+ `<p><b>4 projects from the automated ConstructConnect sync.</b></p><ul><li><b>1 new strategic project:</b> Westfield Regional Medical Center, $148M, Healthcare, Dublin, OH. Routed to Ingénia, Cooling and Patterson-Kelley. Similar hospitals also bought TAMCO dampers, so the TAMCO brand leader may want to look.</li>
+<li><b>2 matched:</b> Lakemont East Tower's bid date moved to March 2028; a rep-entered university project now has feed data.</li>
+<li><b>1 held:</b> Riverbend Apartments, $9.2M, below every brand's routing threshold.</li></ul>${acts(['Done','Notify the TAMCO brand leader'],0)}${used('Read today\'s intake · Compare with similar projects')}`,
+ [{do:'Open on the completed feed and click "Summarize the latest feed".',say:'The feed is automated. Before reading it row by row, segment operations asks Agentforce for the summary.',build:AIB+'Topic "Feed summary" over Project Intake and similar projects.'},
+  {do:'Read the summary, then click Done.',say:'One strategic project, a hint that two more brands could be involved, and why one project was held. Now let us look at the rows.',build:AIB+'Suggestions to notify other brands are flow actions that ask for confirmation.'}]),
+ {kind:'iag',html:withOverlay(anchor(H('s1',0),'<th>','match','Match result'),TARGET('match','bottom','How to read the feed','Three outcomes','<b>New</b>: project created and leads routed. <b>Matched</b>: existing project enriched, never duplicated. <b>Held</b>: below every brand\'s routing threshold.')),
+  do:'Show the guidance on the Match result column, then click Got it.',say:'Guidance explains how to read the feed the first time someone opens it.',build:IAGB+'Targeted prompt on the list view column, audience: segment operations.'}]);
+ins2('s1',3,[{kind:'iag',html:withOverlay(anchor(H('s1',3),'<div class="sec">','potential','Brand potential'),TARGET('potential','right','Step 1 of 2 · Working a new lead','Your recommended potential','Calculated from floor area, typical airflow and published custom AHU costs. Adjust it if you know more; it becomes the opportunity amount when you convert.','Next')),
+  do:'Show the step on the Brand potential section, then click Next.',say:'Guidance walks Dana through the lead in order. First: where the $2.7M came from.',build:IAGB+'Walkthrough step anchored to the Dynamic Forms section on the Lead page.'}],'start');
+
+
+
+/* ---------------- 2. ERP mapping ---------------- */
+
+
+/* ---------------- 3. One project ---------------- */
+
+
+
+
+/* ---------------- 7. Dashboard ---------------- */
+
+
+
+})();
+/* ================= Layers for scenarios 5 and 6 (rebuilt) ================= */
+(function(){
+const strip=h=>h.replace(/ data-go(?=[\s>])/g,'');
+const find=k=>SC.find(s=>s.key===k);
+function withAgent(h,panel){return strip(h).replace('<div class="sf-body"><!--B-->','<div class="sf-body"><div class="with-agent"><div class="main-col"><!--B-->').replace('<!--/B--></div>','<!--/B--></div>'+panel+'</div></div>').replace('<div class="g-icons">','<div class="g-icons"><span class="af-ico on">✦</span>');}
+function withOverlay(h,ov){return strip(h).replace('<!--/B-->',ov+'<!--/B-->');}
+function anchor(h,tag,name,ctx){h=strip(h); const i=h.indexOf(tag+(ctx||'')); if(i<0){console.error('anchor missing',name); return h;} const end=i+tag.length-1; return h.slice(0,end)+` data-anchor="${name}"`+h.slice(end);}
+function AF(msgs,o={}){
+  const m=msgs.map(x=>x.u?`<div class="af-u">${x.u}</div>`:x.chips?`<div class="af-chips">${x.chips.map((c,i)=>`<span class="af-chip" ${x.hot===i?'data-go':''}>${c}</span>`).join('')}</div>`:x.files?`<div>${x.files.map(f=>`<span class="af-file">📎 ${f}</span>`).join('')}</div>`:`<div class="af-a">${x.a}</div>`).join('');
+  return `<aside class="af"><div class="af-h"><span class="af-logo">✦</span><div>Agentforce<div class="af-sub">${o.sub||'Sales assistant'}</div></div><span class="x">✕</span></div><div class="af-msgs">${m}</div><div class="af-in"><div class="input">Ask Agentforce...</div><div class="af-note">Illustrative. Responses are generated from records you can access; check before acting.</div></div></aside>`;}
+const used=t=>`<div class="af-used">Used: ${t}</div>`;
+const acts=(arr,hot)=>`<div class="af-act">${arr.map((a,i)=>`<span class="btn${i===hot?' brand':''}" ${i===hot?'data-go':''}>${a}</span>`).join('')}</div>`;
+const hero=(label)=>`<div class="iag-hero"><i style="width:160px;height:160px;right:-30px;top:-60px"></i><i style="width:90px;height:90px;right:120px;top:40px"></i><i style="width:50px;height:50px;left:40%;top:-15px"></i><span>${label}</span></div>`;
+function FLOAT(step,title,body,primary,o={}){return `<div class="iag-float">${hero(o.hero||'SPX HVAC Segment')}<div class="iag-b"><div class="iag-step">${step}</div><h6>${title}</h6><p>${body}</p><div class="iag-f"><span class="lk">Remind me later</span><span style="display:flex;gap:10px;align-items:center">${o.extra||''}<span class="btn brand" data-go>${primary}</span></span></div></div></div>`;}
+function TARGET(id,side,step,title,body,primary){return `<div class="iag-target" data-for="${id}" data-side="${side}"><span class="iag-arr"></span><div class="iag-b"><div class="iag-step">${step}</div><h6>${title}</h6><p>${body}</p><div class="iag-f"><span class="lk">Dismiss</span><span class="btn brand" data-go>${primary||'Got it'}</span></div></div></div>`;}
+function ins2(key,idx,arr,where){const S=find(key), target=ORIG[key][idx]; let pos=S.screens.indexOf(target);
+  if(where==='start') while(pos>0 && S.screens[pos-1].kind) pos--;
+  S.screens.splice(pos,0,...arr.map(x=>({feat:x.kind,...x})));}
+const H=(k,i)=>ORIG[k][i].html;
+const IAGB='Configured in Setup › In-App Guidance, no code. ';
+const AIB='Agentforce is a roadmap capability, separately licensed and consumption-based; not assumed in Foundation scope. ';
+const pair=(base,sub,intro,chips,q,answer,o)=>[{kind:'ai',html:withAgent(base,AF([{a:`<p>${intro}</p>`},{chips,hot:0}],{sub})),...o[0]},{kind:'ai',html:withAgent(base,AF([{u:q},{a:answer}],{sub})),...o[1]}];
+
+
+})();
+/* ================= engine ================= */
+(function(){
+  const stage=document.getElementById('stage'), pres=document.getElementById('presenter'), tabs=document.getElementById('tabs');
+  const done=new Set(); let sc=0, i=0;
+  const feat={ai:true, iag:true};
+  const vis=S=>S.screens.filter(s=>!s.feat||feat[s.feat]);
+  window.VIS=k=>vis(SC[k]).length;
+  tabs.innerHTML=SC.map((s,k)=>`<button data-k="${k}" class="${s.star?'star':''}">${s.label}<span class="done-tick" hidden>✓</span></button>`).join('');
+  function render(){
+    const S=SC[sc], list=vis(S), scr={...list[i]}; if(i===list.length-1) scr.end=true;
+    stage.innerHTML=scr.html;
+    [...tabs.children].forEach((b,k)=>{b.setAttribute('aria-current',k===sc?'true':'false'); b.querySelector('.done-tick').hidden=!done.has(k);});
+    pres.className='presenter'+(S.star?' star':'');
+    pres.innerHTML=`<p class="scn">Scenario ${S.label.replace(/^(\S+)\s.*/,'$1')}</p><h2>${S.title}</h2>
+      <div class="dots-prog">${list.map((_,k)=>`<i class="${k<i?'on':k===i?'cur':''}"></i>`).join('')}</div>
+      ${scr.kind==='iag'?'<span class="badge iag">In-App Guidance</span>':scr.kind==='ai'?'<span class="badge ai">Agentforce: art of the possible</span>':scr.kind==='add'?'<span class="badge add">Suggested addition</span>':scr.kind==='claude'?'<span class="badge claude">Claude: existing enterprise AI tool</span>':''}
+      <p class="pstep">Step ${i+1} of ${list.length}</p>
+      <p class="pdo">${scr.do}</p>
+      ${scr.say?`<div class="psay"><b>Say</b>${scr.say}</div>`:''}
+      ${scr.rec?`<div class="prec"><b>Recommended practice</b>${scr.rec}</div>`:''}
+      ${scr.build?`<div class="pbuild"><b>How we'd build it</b>${scr.build}</div>`:''}
+      ${scr.watch?`<p class="pwatch"><b>Presenter note.</b> ${scr.watch}</p>`:''}
+      ${scr.switchTo?`<button class="pswitch" data-act="next">${scr.switchTo}</button>`:''}
+      ${scr.end?`<div class="pend">End of scenario.${sc<SC.length-1?' Next up: '+SC[sc+1].label+'.':''}</div>`:''}
+      <div class="pnav"><button data-act="back" ${i===0?'disabled':''}>Back</button><button data-act="restart">Restart</button><button data-act="${scr.end?'nextsc':'next'}">${scr.end?(sc<SC.length-1?'Next scenario':'Done'):'Skip'}</button></div>
+      <p class="keys">Keys: right arrow next, left arrow back, H hides highlights.</p>`;
+    try{ history.replaceState(null,'',`#${S.key}/${i+1}`); }catch(err){ /* sandboxed preview: ignore */ }
+    requestAnimationFrame(placeTargets);
+  }
+  function next(){const L=vis(SC[sc]); if(i<L.length-1){i++;} else {done.add(sc); return nextsc();} if(L[i].end||i===L.length-1) done.add(sc); render(); window.scrollTo({top:0,behavior:'smooth'});}
+  function nextsc(){done.add(sc); if(sc<SC.length-1){sc++; i=0;} render(); window.scrollTo({top:0});}
+  function back(){if(i>0){i--; render();}}
+  stage.addEventListener('click',e=>{
+    if(e.target.closest('[data-go]')) return next();
+    const f=stage.querySelector('.sf [data-go]') ? [...stage.querySelectorAll('.sf')].find(x=>x.querySelector('[data-go]')) : null;
+    if(f){f.classList.add('nudge'); setTimeout(()=>f.classList.remove('nudge'),700);}
+  });
+  pres.addEventListener('click',e=>{const a=e.target.closest('[data-act]'); if(!a||a.disabled) return;
+    ({next,back,nextsc,restart:()=>{i=0; render();}})[a.dataset.act]();});
+  tabs.addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; sc=+b.dataset.k; i=0; render();});
+  document.addEventListener('keydown',e=>{ if(e.target.closest('input,textarea')) return;
+    if(e.key==='ArrowRight') next(); else if(e.key==='ArrowLeft') back(); else if(e.key.toLowerCase()==='h') document.body.classList.toggle('hide-hot');});
+  const m=location.hash.match(/^#(s\d)\/(\d+)$/);
+  if(m){const k=SC.findIndex(s=>s.key===m[1]); if(k>=0){sc=k; i=Math.min(+m[2]-1, vis(SC[k]).length-1);}}
+  function placeTargets(){
+    stage.querySelectorAll('.iag-target').forEach(t=>{
+      const a=stage.querySelector(`[data-anchor="${t.dataset.for}"]`); if(!a) return;
+      const sf=a.closest('.sf'); if(t.parentElement!==sf) sf.appendChild(t);
+      a.classList.add('hl-anchor');
+      const ar=a.getBoundingClientRect(), sr=sf.getBoundingClientRect(), tw=t.offsetWidth, th=t.offsetHeight, arr=t.querySelector('.iag-arr');
+      const side=t.dataset.side||'bottom'; let x,y;
+      if(side==='bottom'){x=ar.left-sr.left+ar.width/2-tw/2; y=ar.bottom-sr.top+12;}
+      else if(side==='left'){x=ar.left-sr.left-tw-14; y=ar.top-sr.top+ar.height/2-th/2;}
+      else if(side==='right'){x=ar.right-sr.left+14; y=ar.top-sr.top-10;}
+      else {x=ar.left-sr.left+ar.width/2-tw/2; y=ar.top-sr.top-th-12;}
+      x=Math.max(8,Math.min(x,sf.clientWidth-tw-8)); y=Math.max(8,y);
+      t.style.left=x+'px'; t.style.top=y+'px';
+      const ax=ar.left-sr.left+ar.width/2-x-7, ay=ar.top-sr.top+ar.height/2-y-7;
+      if(side==='bottom'){arr.style.left=Math.max(12,Math.min(ax,tw-26))+'px'; arr.style.top='-7px';}
+      else if(side==='top'){arr.style.left=Math.max(12,Math.min(ax,tw-26))+'px'; arr.style.bottom='-7px';}
+      else if(side==='left'){arr.style.right='-7px'; arr.style.top=Math.max(12,Math.min(ay,th-26))+'px';}
+      else {arr.style.left='-7px'; arr.style.top=Math.max(12,Math.min(ay,th-26))+'px';}
+    });
+  }
+  window.addEventListener('resize',()=>requestAnimationFrame(placeTargets));
+  [['tgAi','ai'],['tgIag','iag']].forEach(([id,k])=>document.getElementById(id).addEventListener('change',ev=>{feat[k]=ev.target.checked; i=0; render();}));
+  render();
+})();
+</script>
+</body>
+</html>

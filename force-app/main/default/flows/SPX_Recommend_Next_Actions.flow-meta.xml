@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Run_NBA</name>
+        <label>Run NBA</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>SPX_NBA_Service</actionName>
+        <actionType>apex</actionType>
+        <connector><targetReference>Screen_Result</targetReference></connector>
+        <faultConnector><targetReference>Screen_Error</targetReference></faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>projectId</name>
+            <value><elementReference>recordId</elementReference></value>
+        </inputParameters>
+        <nameSegment>SPX_NBA_Service</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <description>Project page button. Asks the NBA agent to review the project, its records and files, and saves suggested Next Best Actions owned by the person who ran it.</description>
+    <interviewLabel>SPX Recommend Next Actions {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Recommend Next Actions</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <screens>
+        <name>Screen_Start</name>
+        <label>Recommend Next Actions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector><targetReference>Run_NBA</targetReference></connector>
+        <fields>
+            <name>ss_Intro</name>
+            <fieldText>&lt;p&gt;The agent will review this project, its opportunities, leads, intelligence, stakeholders, competitors, activities, files and existing actions, then suggest next best actions for you.&lt;/p&gt;&lt;p&gt;This can take up to 30 seconds. Suggested actions are saved with status &lt;strong&gt;Suggested&lt;/strong&gt; so you can accept or dismiss each one.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Recommend</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Result</name>
+        <label>Suggested Actions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>sr_Message</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;{!Run_NBA.message}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Open the Next Best Actions list on the project to accept (set status to Not Started) or dismiss each suggestion.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>sr_List</name>
+            <defaultValue><elementReference>Run_NBA.createdActions</elementReference></defaultValue>
+            <fieldText>Suggested actions</fieldText>
+            <fieldType>LargeTextArea</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <nextOrFinishButtonLabel>Done</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Error</name>
+        <label>Something went wrong</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>se_Text</name>
+            <fieldText>&lt;p&gt;No actions were created.&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Close</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Screen_Start</targetReference></connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

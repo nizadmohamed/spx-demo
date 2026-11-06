@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentAccesses>
+        <agentName>SPX_Segment_Assistant</agentName>
+        <enabled>true</enabled>
+    </agentAccesses>
+    <description>Run the SPX Segment Assistant agent actions: lead summary context, feed lead reader, brand leader notifier. Read only except the confirmed notification.</description>
+    <flowAccesses>
+        <enabled>true</enabled>
+        <flow>SPX_Agent_Get_Feed_Leads</flow>
+    </flowAccesses>
+    <flowAccesses>
+        <enabled>true</enabled>
+        <flow>SPX_Agent_Lead_Context</flow>
+    </flowAccesses>
+    <flowAccesses>
+        <enabled>true</enabled>
+        <flow>SPX_Agent_Notify_Brand_Leader</flow>
+    </flowAccesses>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>SPX Agentforce User</label>
+</PermissionSet>

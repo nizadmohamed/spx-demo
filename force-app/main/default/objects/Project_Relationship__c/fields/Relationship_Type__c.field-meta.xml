@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Relationship_Type__c</fullName>
+    <label>Relationship Type</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Owner</fullName><default>false</default><label>Owner</label></value>
+            <value><fullName>Engineer</fullName><default>false</default><label>Engineer</label></value>
+            <value><fullName>Mechanical Contractor</fullName><default>false</default><label>Mechanical Contractor</label></value>
+            <value><fullName>Architect</fullName><default>false</default><label>Architect</label></value>
+            <value><fullName>General Contractor</fullName><default>false</default><label>General Contractor</label></value>
+            <value><fullName>Rep Firm</fullName><default>false</default><label>Rep Firm</label></value>
+            <value><fullName>Architectural Firm</fullName><default>false</default><label>Architectural Firm</label></value>
+            <value><fullName>Consulting Engineer</fullName><default>false</default><label>Consulting Engineer</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

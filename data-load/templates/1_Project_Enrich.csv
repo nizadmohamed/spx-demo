@@ -1,0 +1,2 @@
+Project_Reference__c,CC_Project_ID__c,Name,Vertical__c,Project_Phase__c,Project_Status__c,Project_Source__c,Estimated_Construction_Value__c,City__c,State__c,Postal_Code__c,Territory__c,Estimated_Construction_Start__c,Estimated_Completion__c
+,CC-DEMO-0001,Sample Hospital Expansion,Healthcare,Design Development,Active,ConstructConnect,25000000,Chicago,IL,60601,Midwest,2027-03-01,2028-06-30

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>BOD Status</masterLabel>
+    <sorted>false</sorted>
+    <customValue>
+        <fullName>Not yet</fullName>
+        <default>false</default>
+        <label>Not yet</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Pending</fullName>
+        <default>false</default>
+        <label>Pending</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Secured</fullName>
+        <default>false</default>
+        <label>Secured</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>At Risk</fullName>
+        <default>false</default>
+        <label>At Risk</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Defended</fullName>
+        <default>false</default>
+        <label>Defended</label>
+        <isActive>true</isActive>
+    </customValue>
+    <customValue>
+        <fullName>Lost</fullName>
+        <default>false</default>
+        <label>Lost</label>
+        <isActive>true</isActive>
+    </customValue>
+</GlobalValueSet>

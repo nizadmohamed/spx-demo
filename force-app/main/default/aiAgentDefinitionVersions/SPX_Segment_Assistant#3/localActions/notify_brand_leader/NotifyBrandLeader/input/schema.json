@@ -1,0 +1,21 @@
+{
+  "required" : [ ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "brandName" : {
+      "title" : "brandName",
+      "description" : "Brand whose sales leader should be notified: Ingénia, Cooling, Patterson-Kelley or TAMCO.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "projectName" : {
+      "title" : "projectName",
+      "description" : "Exact name of the project to flag, for example Westfield Regional Medical Center.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

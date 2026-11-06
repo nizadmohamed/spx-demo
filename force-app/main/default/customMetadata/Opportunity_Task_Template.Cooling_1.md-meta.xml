@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Cooling 1</label>
+    <protected>false</protected>
+    <values>
+        <field>Brand__c</field>
+        <value xsi:type="xsd:string">Cooling</value>
+    </values>
+    <values>
+        <field>Trigger_Event__c</field>
+        <value xsi:type="xsd:string">On Create</value>
+    </values>
+    <values>
+        <field>Sequence__c</field>
+        <value xsi:type="xsd:double">1</value>
+    </values>
+    <values>
+        <field>Subject__c</field>
+        <value xsi:type="xsd:string">Cooling: Confirm plant capacity and cooling tower or chiller scope</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Auto-created from the Opportunity Task Template (Cooling, task 1). Edit the template in Custom Metadata to change it.</value>
+    </values>
+    <values>
+        <field>Days_Until_Due__c</field>
+        <value xsi:type="xsd:double">2</value>
+    </values>
+    <values>
+        <field>Priority__c</field>
+        <value xsi:type="xsd:string">High</value>
+    </values>
+    <values>
+        <field>Assign_To__c</field>
+        <value xsi:type="xsd:string">Opportunity Owner</value>
+    </values>
+    <values>
+        <field>Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+</CustomMetadata>

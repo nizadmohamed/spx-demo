@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Run_NBA</name>
+        <label>Run NBA</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>SPX_NBA_Service</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Set_Result</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>projectId</name>
+            <value>
+                <elementReference>fProjectId</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SPX_NBA_Service</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <apiVersion>49.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_Not_Found</name>
+        <label>Set Not Found</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>resultText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>No project was found. Ask the user for the exact project name, or open the project page and try again.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Result</name>
+        <label>Set Result</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>resultText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fResult</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Have_Id</name>
+        <label>Have Id</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_Project_By_Name</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No id</defaultConnectorLabel>
+        <rules>
+            <name>Id_Given</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>projectId</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Run_NBA</targetReference>
+            </connector>
+            <label>Id given</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Name_Found</name>
+        <label>Name Found</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Set_Not_Found</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not found</defaultConnectorLabel>
+        <rules>
+            <name>Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Project_By_Name</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Run_NBA</targetReference>
+            </connector>
+            <label>Found</label>
+        </rules>
+    </decisions>
+    <description>Agent action. Reviews a project (by record id or exact name) and saves suggested Next Best Actions owned by the user. Returns plain text for the agent to relay.</description>
+    <formulas>
+        <name>fProjectId</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!projectId}), {!Get_Project_By_Name.Id}, {!projectId})</expression>
+    </formulas>
+    <formulas>
+        <name>fResult</name>
+        <dataType>String</dataType>
+        <expression>{!Run_NBA.message} &amp; IF(ISBLANK({!Run_NBA.createdActions}), &quot;&quot;, &quot; &quot; &amp; {!Run_NBA.createdActions})</expression>
+    </formulas>
+    <interviewLabel>SPX Agent Recommend Actions {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Agent Recommend Actions</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Project_By_Name</name>
+        <label>Get Project By Name</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Name_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>projectName</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Project__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Have_Id</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>projectId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>projectName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>resultText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

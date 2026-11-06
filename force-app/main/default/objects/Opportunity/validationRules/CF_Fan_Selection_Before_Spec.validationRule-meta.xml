@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CF_Fan_Selection_Before_Spec</fullName>
+    <active>false</active>
+    <description>Chicago Fan: fan arrangement and wheel type are required from stage 3.0 onward. Built inactive; activated live in step 6.</description>
+    <errorConditionFormula>AND(
+  NOT($Permission.SPX_Bypass_Validation_Rules),
+  ISPICKVAL(Brand__c, &quot;Chicago Fan&quot;),
+  OR(ISPICKVAL(StageName, &quot;3.0 Spec and Influence&quot;),
+     ISPICKVAL(StageName, &quot;4.0 Solution and Proposal&quot;),
+     ISPICKVAL(StageName, &quot;5.0 Negotiate and Close&quot;)),
+  OR(ISBLANK(TEXT(Fan_Arrangement__c)), ISBLANK(TEXT(Wheel_Type__c)))
+)</errorConditionFormula>
+    <errorMessage>Fan arrangement and wheel type are required before moving to Spec and Influence or later for Chicago Fan.</errorMessage>
+</ValidationRule>

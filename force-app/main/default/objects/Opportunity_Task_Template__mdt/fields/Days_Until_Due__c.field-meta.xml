@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Days_Until_Due__c</fullName>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <description>Due date = the day the task is created plus this many days.</description>
+    <label>Days Until Due</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+</CustomField>

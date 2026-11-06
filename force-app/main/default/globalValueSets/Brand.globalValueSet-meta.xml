@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Cooling</fullName>
+        <default>false</default>
+        <label>Cooling</label>
+    </customValue>
+    <customValue>
+        <fullName>Ingénia</fullName>
+        <default>false</default>
+        <label>Ingénia</label>
+    </customValue>
+    <customValue>
+        <fullName>Patterson-Kelley</fullName>
+        <default>false</default>
+        <label>Patterson-Kelley</label>
+    </customValue>
+    <customValue>
+        <fullName>TAMCO</fullName>
+        <default>false</default>
+        <label>TAMCO</label>
+    </customValue>
+    <customValue>
+        <fullName>Marley</fullName>
+        <default>false</default>
+        <label>Marley</label>
+    </customValue>
+    <customValue>
+        <fullName>Strobic</fullName>
+        <default>false</default>
+        <label>Strobic</label>
+    </customValue>
+    <customValue>
+        <fullName>Cincinnati Fan</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Cincinnati Fan</label>
+    </customValue>
+    <customValue>
+        <fullName>Chicago Fan</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Chicago Fan</label>
+    </customValue>
+    <masterLabel>Brand</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

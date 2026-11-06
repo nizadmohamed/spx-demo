@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Role xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Ingénia Brand Sales Leader</description>
+    <name>Ingénia Brand Sales Leader</name>
+    <parentRole>Segment_Sales_Leader</parentRole>
+</Role>

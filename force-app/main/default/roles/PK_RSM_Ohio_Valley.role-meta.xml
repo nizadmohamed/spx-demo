@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Role xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Patterson-Kelley Rep (RSM)</description>
+    <name>Patterson-Kelley Rep (RSM)</name>
+    <parentRole>PK_Brand_Sales_Leader</parentRole>
+</Role>

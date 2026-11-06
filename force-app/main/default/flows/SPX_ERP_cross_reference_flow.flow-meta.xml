@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <description>When Account changes on an ERP Cross-Reference, creates or reuses the Brand Relationship on the account global ultimate for the brand mapped from ERP System, and links it. Does not recalculate Open Pipeline. Handover Pack section 3.</description>
+    <assignments>
+        <name>Use_Existing_Relationship</name>
+        <label>Use Existing Relationship</label>
+        <locationX>376</locationX>
+        <locationY>110</locationY>
+        <assignmentItems>
+            <assignToReference>varRelationshipId</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>Get_Brand_Relationship.Id</elementReference></value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_ERP_Record</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Use_New_Relationship</name>
+        <label>Use New Relationship</label>
+        <locationX>576</locationX>
+        <locationY>170</locationY>
+        <assignmentItems>
+            <assignToReference>varRelationshipId</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>varNewRelationshipId</elementReference></value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_ERP_Record</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Brand_Mapped</name>
+        <label>Brand Mapped</label>
+        <locationX>176</locationX>
+        <locationY>230</locationY>
+        <defaultConnectorLabel>ERP System Has No Brand</defaultConnectorLabel>
+        <rules>
+            <name>Brand_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>fBrandMapped</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue><booleanValue>true</booleanValue></rightValue>
+            </conditions>
+        <connector>
+            <targetReference>Get_Brand_Relationship</targetReference>
+        </connector>
+            <label>Brand Found</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Relationship_Exists</name>
+        <label>Relationship Exists</label>
+        <locationX>376</locationX>
+        <locationY>290</locationY>
+        <defaultConnector>
+            <targetReference>Create_Brand_Relationship</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Relationship Yet</defaultConnectorLabel>
+        <rules>
+            <name>Relationship_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Brand_Relationship</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue><booleanValue>false</booleanValue></rightValue>
+            </conditions>
+        <connector>
+            <targetReference>Use_Existing_Relationship</targetReference>
+        </connector>
+            <label>Relationship Found</label>
+        </rules>
+    </decisions>
+    <formulas>
+        <name>fGlobalId</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!Get_Account.Global_Ultimate__c}), {!Get_Account.Id}, {!Get_Account.Global_Ultimate__c})</expression>
+    </formulas>
+    <formulas>
+        <name>fBrand</name>
+        <dataType>String</dataType>
+        <expression>CASE(TEXT({!$Record.ERP_System__c}), "QTC", "Cooling", "Ingénia ERP", "Ingénia", "TAMCO ERP", "TAMCO", "Patterson-Kelley ERP", "Patterson-Kelley", "Chicago Fan ERP", "Chicago Fan", "")</expression>
+    </formulas>
+    <formulas>
+        <name>fBrandMapped</name>
+        <dataType>Boolean</dataType>
+        <expression>NOT(ISBLANK(CASE(TEXT({!$Record.ERP_System__c}), "QTC", "Cooling", "Ingénia ERP", "Ingénia", "TAMCO ERP", "TAMCO", "Patterson-Kelley ERP", "Patterson-Kelley", "Chicago Fan ERP", "Chicago Fan", "")))</expression>
+    </formulas>
+    <interviewLabel>SPX ERP cross-reference flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX ERP cross-reference flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Brand_Relationship</name>
+        <label>Create Brand Relationship</label>
+        <locationX>376</locationX>
+        <locationY>470</locationY>
+        <assignRecordIdToReference>varNewRelationshipId</assignRecordIdToReference>
+        <connector>
+            <targetReference>Use_New_Relationship</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Account__c</field>
+            <value><elementReference>fGlobalId</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Brand__c</field>
+            <value><elementReference>fBrand</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value><elementReference>fBrand</elementReference></value>
+        </inputAssignments>
+        <object>Brand_Relationship__c</object>
+    </recordCreates>
+    <recordLookups>
+        <name>Get_Account</name>
+        <label>Get Account</label>
+        <locationX>576</locationX>
+        <locationY>350</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Brand_Mapped</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.Account__c</elementReference></value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Brand_Relationship</name>
+        <label>Get Brand Relationship</label>
+        <locationX>176</locationX>
+        <locationY>410</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Relationship_Exists</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Account__c</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>fGlobalId</elementReference></value>
+        </filters>
+        <filters>
+            <field>Brand__c</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>fBrand</elementReference></value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Brand_Relationship__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_ERP_Record</name>
+        <label>Update ERP Record</label>
+        <locationX>576</locationX>
+        <locationY>530</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>$Record.Id</elementReference></value>
+        </filters>
+        <inputAssignments>
+            <field>Brand_Relationship__c</field>
+            <value><elementReference>varRelationshipId</elementReference></value>
+        </inputAssignments>
+        <object>ERP_Cross_Reference__c</object>
+    </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Account</targetReference>
+        </connector>
+        <filterFormula>AND(NOT({!$Permission.SPX_Bypass_Automation}), NOT(ISBLANK({!$Record.Account__c})), OR(ISNEW(), ISCHANGED({!$Record.Account__c})))</filterFormula>
+        <object>ERP_Cross_Reference__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>varRelationshipId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varNewRelationshipId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

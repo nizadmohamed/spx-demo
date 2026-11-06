@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingCriteriaRules>
+        <fullName>CF_All_Project_Intelligence</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>CF All Project Intelligence</label>
+        <sharedTo>
+            <roleAndSubordinates>CF_Brand_Sales_Leader</roleAndSubordinates>
+        </sharedTo>
+        <criteriaItems>
+            <field>Share_with_Project__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>false</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Cooling_All_Project_Intelligence</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>Cooling All Project Intelligence</label>
+        <sharedTo>
+            <roleAndSubordinates>Cooling_Brand_Sales_Leader</roleAndSubordinates>
+        </sharedTo>
+        <criteriaItems>
+            <field>Share_with_Project__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>false</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Ingenia_All_Project_Intelligence</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>Ingenia All Project Intelligence</label>
+        <sharedTo>
+            <roleAndSubordinates>Ingenia_Brand_Sales_Leader</roleAndSubordinates>
+        </sharedTo>
+        <criteriaItems>
+            <field>Share_with_Project__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>false</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Marley_All_Project_Intelligence</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>Marley All Project Intelligence</label>
+        <sharedTo>
+            <roleAndSubordinates>Marley_Brand_Sales_Leader</roleAndSubordinates>
+        </sharedTo>
+        <criteriaItems>
+            <field>Share_with_Project__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>false</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>PK_All_Project_Intelligence</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>PK All Project Intelligence</label>
+        <sharedTo>
+            <roleAndSubordinates>PK_Brand_Sales_Leader</roleAndSubordinates>
+        </sharedTo>
+        <criteriaItems>
+            <field>Share_with_Project__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>false</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Strobic_All_Project_Intelligence</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>Strobic All Project Intelligence</label>
+        <sharedTo>
+            <roleAndSubordinates>Strobic_Brand_Sales_Leader</roleAndSubordinates>
+        </sharedTo>
+        <criteriaItems>
+            <field>Share_with_Project__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>false</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>TAMCO_All_Project_Intelligence</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>TAMCO All Project Intelligence</label>
+        <sharedTo>
+            <roleAndSubordinates>TAMCO_Brand_Sales_Leader</roleAndSubordinates>
+        </sharedTo>
+        <criteriaItems>
+            <field>Share_with_Project__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>false</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+</SharingRules>

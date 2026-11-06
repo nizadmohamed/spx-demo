@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_Notification</name>
+        <label>Send Notification</label>
+        <locationX>314</locationX>
+        <locationY>926</locationY>
+        <actionName>customNotificationAction</actionName>
+        <actionType>customNotificationAction</actionType>
+        <connector>
+            <targetReference>Set_Sent_Text</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Set_Failed_Text</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>customNotifTypeId</name>
+            <value>
+                <elementReference>Get_Notification_Type.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientIds</name>
+            <value>
+                <elementReference>colRecipients</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>title</name>
+            <value>
+                <elementReference>fNotifTitle</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>body</name>
+            <value>
+                <elementReference>fNotifBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>targetId</name>
+            <value>
+                <elementReference>Get_Project.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+    </actionCalls>
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Add_Recipient</name>
+        <label>Add Recipient</label>
+        <locationX>314</locationX>
+        <locationY>818</locationY>
+        <assignmentItems>
+            <assignToReference>colRecipients</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Get_Role_Group.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Notification_Type</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Failed_Text</name>
+        <label>Set Failed Text</label>
+        <locationX>842</locationX>
+        <locationY>1034</locationY>
+        <assignmentItems>
+            <assignToReference>resultText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>The notification could not be sent. No one was notified.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_No_Brand_Text</name>
+        <label>Set No Brand Text</label>
+        <locationX>578</locationX>
+        <locationY>458</locationY>
+        <assignmentItems>
+            <assignToReference>resultText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>I could not find a brand leader group for that brand. No one was notified.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_No_Project_Text</name>
+        <label>Set No Project Text</label>
+        <locationX>50</locationX>
+        <locationY>242</locationY>
+        <assignmentItems>
+            <assignToReference>resultText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>I could not find that project. No one was notified.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Sent_Text</name>
+        <label>Set Sent Text</label>
+        <locationX>314</locationX>
+        <locationY>1034</locationY>
+        <assignmentItems>
+            <assignToReference>resultText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fSentText</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Group_Found</name>
+        <label>Group Found</label>
+        <locationX>446</locationX>
+        <locationY>710</locationY>
+        <defaultConnector>
+            <targetReference>Set_No_Brand_Text</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No group</defaultConnectorLabel>
+        <rules>
+            <name>Group_Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Role_Group</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_Recipient</targetReference>
+            </connector>
+            <label>Group exists</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Project_Found</name>
+        <label>Project Found</label>
+        <locationX>380</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Set_No_Project_Text</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No project</defaultConnectorLabel>
+        <rules>
+            <name>Project_Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Project</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Brand_Role</targetReference>
+            </connector>
+            <label>Project exists</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Role_Found</name>
+        <label>Role Found</label>
+        <locationX>446</locationX>
+        <locationY>566</locationY>
+        <defaultConnector>
+            <targetReference>Set_No_Brand_Text</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No role</defaultConnectorLabel>
+        <rules>
+            <name>Role_Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Brand_Role</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Role_Group</targetReference>
+            </connector>
+            <label>Role exists</label>
+        </rules>
+    </decisions>
+    <description>Sends one in-app notification to the brand sales leader group (for example TAMCO) about a project, using the New strategic project in your territory notification type. The agent must ask the user to confirm before running this. Does not create or change any record.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fNotifBody</name>
+        <dataType>String</dataType>
+        <expression>&quot;Segment operations flagged project &quot; &amp; {!projectName} &amp; &quot; for &quot; &amp; {!brandName} &amp; &quot;. Please take a look.&quot;</expression>
+    </formulas>
+    <formulas>
+        <name>fNotifTitle</name>
+        <dataType>String</dataType>
+        <expression>&quot;Project to review: &quot; &amp; {!projectName}</expression>
+    </formulas>
+    <formulas>
+        <name>fRoleName</name>
+        <dataType>String</dataType>
+        <expression>CASE({!brandName}, &quot;Ingénia&quot;, &quot;Ingenia_Brand_Sales_Leader&quot;, &quot;Ingenia&quot;, &quot;Ingenia_Brand_Sales_Leader&quot;, &quot;Cooling&quot;, &quot;Cooling_Brand_Sales_Leader&quot;, &quot;Patterson-Kelley&quot;, &quot;PK_Brand_Sales_Leader&quot;, &quot;TAMCO&quot;, &quot;TAMCO_Brand_Sales_Leader&quot;, &quot;Marley&quot;, &quot;Marley_Brand_Sales_Leader&quot;, &quot;Strobic&quot;, &quot;Strobic_Brand_Sales_Leader&quot;, &quot;&quot;)</expression>
+    </formulas>
+    <formulas>
+        <name>fSentText</name>
+        <dataType>String</dataType>
+        <expression>&quot;Notified the &quot; &amp; {!brandName} &amp; &quot; brand sales leader about &quot; &amp; {!projectName} &amp; &quot;.&quot;</expression>
+    </formulas>
+    <interviewLabel>SPX Agent Notify Brand Leader {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Agent Notify Brand Leader</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Brand_Role</name>
+        <label>Get Brand Role</label>
+        <locationX>446</locationX>
+        <locationY>458</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Role_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>fRoleName</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>UserRole</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Notification_Type</name>
+        <label>Get Notification Type</label>
+        <locationX>314</locationX>
+        <locationY>926</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Send_Notification</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>New_strategic_project_in_your_territory</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>CustomNotificationType</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Project</name>
+        <label>Get Project</label>
+        <locationX>380</locationX>
+        <locationY>134</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Project_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>projectName</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Project__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Role_Group</name>
+        <label>Get Role Group</label>
+        <locationX>446</locationX>
+        <locationY>674</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Group_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Type</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Role</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>RelatedId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Brand_Role.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Group</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>DefaultMode</runInMode>
+    <start>
+        <locationX>254</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Project</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>Brand whose sales leader should be notified: Ingénia, Cooling, Patterson-Kelley, TAMCO, Marley or Strobic.</description>
+        <name>brandName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>colRecipients</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Exact name of the project to flag, for example Westfield Regional Medical Center.</description>
+        <name>projectName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Plain text outcome to tell the user.</description>
+        <name>resultText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

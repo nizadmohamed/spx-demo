@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PathAssistant xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <entityName>Opportunity</entityName>
+    <fieldName>StageName</fieldName>
+    <masterLabel>Golden Template Path</masterLabel>
+    <pathAssistantSteps>
+        <info>&lt;ul&gt;&lt;li&gt;Confirm ICP fit and decide pursue or no-bid within 10 days.&lt;/li&gt;&lt;li&gt;Check brand participation on the project before the first owner meeting.&lt;/li&gt;&lt;/ul&gt;</info>
+        <picklistValueName>1.0 Prospect and Market ID</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>2.0 Needs Analysis and Qualify</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>3.0 Spec and Influence</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>4.0 Solution and Proposal</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>5.0 Negotiate and Close</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>Closed Won</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>Closed Lost</picklistValueName>
+    </pathAssistantSteps>
+    <recordTypeName>Golden_Template_Project_Sale</recordTypeName>
+</PathAssistant>

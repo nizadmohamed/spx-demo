@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Role xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Chicago Fan Rep (RSM)</description>
+    <name>Chicago Fan Rep (RSM)</name>
+    <parentRole>CF_Brand_Sales_Leader</parentRole>
+</Role>

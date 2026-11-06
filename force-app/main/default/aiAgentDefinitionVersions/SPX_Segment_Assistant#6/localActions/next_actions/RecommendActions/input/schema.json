@@ -1,0 +1,21 @@
+{
+  "required" : [ ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "projectId" : {
+      "title" : "projectId",
+      "description" : "Salesforce record id of the project, when the user is on a project record. Leave empty otherwise.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "projectName" : {
+      "title" : "projectName",
+      "description" : "Exact name of the project, used only when no record id is available.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

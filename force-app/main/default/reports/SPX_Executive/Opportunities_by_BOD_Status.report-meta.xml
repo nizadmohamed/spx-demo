@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <chart>
+        <backgroundColor1>#FFFFFF</backgroundColor1>
+        <backgroundColor2>#FFFFFF</backgroundColor2>
+        <backgroundFadeDir>Diagonal</backgroundFadeDir>
+        <chartSummaries>
+            <axisBinding>y</axisBinding>
+            <column>RowCount</column>
+        </chartSummaries>
+        <chartType>Donut</chartType>
+        <enableHoverLabels>false</enableHoverLabels>
+        <expandOthers>true</expandOthers>
+        <groupingColumn>Opportunity.BOD_Status__c</groupingColumn>
+        <location>CHART_TOP</location>
+        <showAxisLabels>true</showAxisLabels>
+        <showPercentage>false</showPercentage>
+        <showTotal>false</showTotal>
+        <showValues>true</showValues>
+        <size>Medium</size>
+        <summaryAxisRange>Auto</summaryAxisRange>
+        <textColor>#000000</textColor>
+        <textSize>12</textSize>
+        <titleColor>#000000</titleColor>
+        <titleSize>18</titleSize>
+    </chart>
+    <columns><field>OPPORTUNITY_NAME</field></columns>
+    <columns><field>Opportunity.Project__c</field></columns>
+    <columns><field>Opportunity.Brand__c</field></columns>
+    <columns><field>STAGE_NAME</field></columns>
+    <columns><field>AMOUNT</field></columns>
+    <currency>USD</currency>
+    <filter>
+            <criteriaItems><column>Opportunity.Brand__c</column><columnToColumn>false</columnToColumn><isUnlocked>true</isUnlocked><operator>notEqual</operator><value></value></criteriaItems>
+            <criteriaItems><column>CLOSED</column><columnToColumn>false</columnToColumn><isUnlocked>true</isUnlocked><operator>equals</operator><value>0</value></criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown><dateGranularity>Day</dateGranularity><field>Opportunity.BOD_Status__c</field><sortOrder>Asc</sortOrder></groupingsDown>
+    <name>Opportunities by BOD Status</name>
+    <reportType>Opportunity</reportType>
+    <params><name>co</name><value>1</value></params>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+</Report>

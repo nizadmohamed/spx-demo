@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Project_Intake_Feed</fullName>
+    <columns>CC_Project_ID__c</columns>
+    <columns>Project_Name__c</columns>
+    <columns>Brand__c</columns>
+    <columns>Vertical__c</columns>
+    <columns>LEAD.CITY</columns>
+    <columns>LEAD.STATE</columns>
+    <columns>Est_Construction_Value__c</columns>
+    <columns>LEAD.STATUS</columns>
+    <columns>Match_Result__c</columns>
+    <columns>Project__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>LEAD.LEAD_SOURCE</field>
+        <operation>equals</operation>
+        <value>ConstructConnect</value>
+    </filters>
+    <label>Project Intake Feed</label>
+</ListView>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Add_Lead_Line</name>
+        <label>Add Lead Line</label>
+        <locationX>314</locationX>
+        <locationY>458</locationY>
+        <assignmentItems>
+            <assignToReference>feedText</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>fLeadLine</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>leadCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Leads</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Empty_Text</name>
+        <label>Set Empty Text</label>
+        <locationX>578</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>feedText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>No ConstructConnect feed leads have been released yet.</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Has_Leads</name>
+        <label>Has Leads</label>
+        <locationX>380</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Set_Empty_Text</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No leads</defaultConnectorLabel>
+        <rules>
+            <name>Leads_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Feed_Leads</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Leads</targetReference>
+            </connector>
+            <label>Leads found</label>
+        </rules>
+    </decisions>
+    <description>Read only. Returns one text line per released ConstructConnect feed lead (not Staged, not converted) with brand, status, match result, territory, strategic flag, value, phase, routing result and recommended potential. Used by the SPX Segment Assistant to summarize the latest feed, explain what was held and why, and list strategic projects. Runs as the user, so sharing applies. Never releases or changes leads.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fLeadLine</name>
+        <dataType>String</dataType>
+        <expression>&quot;- &quot; &amp; {!Loop_Leads.Project_Name__c} &amp; &quot; | Brand: &quot; &amp; TEXT({!Loop_Leads.Brand__c}) &amp; &quot; | Status: &quot; &amp; TEXT({!Loop_Leads.Status}) &amp; &quot; | Match result: &quot; &amp; TEXT({!Loop_Leads.Match_Result__c}) &amp; &quot; | Strategic: &quot; &amp; IF({!Loop_Leads.Strategic_Project__c}, &quot;Yes&quot;, &quot;No&quot;) &amp; &quot; | Vertical: &quot; &amp; TEXT({!Loop_Leads.Vertical__c}) &amp; &quot; | Phase: &quot; &amp; TEXT({!Loop_Leads.Project_Phase__c}) &amp; &quot; | Value: &quot; &amp; IF(ISBLANK({!Loop_Leads.Est_Construction_Value__c}), &quot;n/a&quot;, TEXT({!Loop_Leads.Est_Construction_Value__c})) &amp; &quot; | Territory: &quot; &amp; IF(ISBLANK({!Loop_Leads.Territory__c}), &quot;n/a&quot;, {!Loop_Leads.Territory__c}) &amp; &quot; | Routing result: &quot; &amp; IF(ISBLANK({!Loop_Leads.Routing_Threshold_Result__c}), &quot;n/a&quot;, {!Loop_Leads.Routing_Threshold_Result__c}) &amp; &quot; | Recommended potential: &quot; &amp; IF(ISBLANK({!Loop_Leads.Est_Brand_Potential__c}), &quot;n/a&quot;, TEXT({!Loop_Leads.Est_Brand_Potential__c})) &amp; &quot; | City: &quot; &amp; IF(ISBLANK({!Loop_Leads.City}), &quot;n/a&quot;, {!Loop_Leads.City}) &amp; &quot;, &quot; &amp; IF(ISBLANK({!Loop_Leads.State}), &quot;n/a&quot;, {!Loop_Leads.State}) &amp; BR()</expression>
+    </formulas>
+    <interviewLabel>SPX Agent Get Feed Leads {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SPX Agent Get Feed Leads</label>
+    <loops>
+        <name>Loop_Leads</name>
+        <label>Loop Leads</label>
+        <locationX>380</locationX>
+        <locationY>350</locationY>
+        <collectionReference>Get_Feed_Leads</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Add_Lead_Line</targetReference>
+        </nextValueConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Feed_Leads</name>
+        <label>Get Feed Leads</label>
+        <locationX>380</locationX>
+        <locationY>134</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Has_Leads</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Intelligence_Source__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ConstructConnect</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>IsConverted</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Qualified</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Lead</object>
+        <sortField>Est_Construction_Value__c</sortField>
+        <sortOrder>Desc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>DefaultMode</runInMode>
+    <start>
+        <locationX>254</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Feed_Leads</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>One line per released feed lead: project, brand, status, match result, strategic flag, vertical, phase, value, territory, routing result, recommended potential, city and state.</description>
+        <name>feedText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Number of released feed leads returned.</description>
+        <name>leadCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Optional. Leave empty. The flow always returns all released ConstructConnect feed leads.</description>
+        <name>scopeNote</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

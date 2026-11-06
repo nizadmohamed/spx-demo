@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Global_Parent__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Flow-maintained pointer to the global parent account of the hierarchy this record's account belongs to. Used to roll up records without copying them.</description>
+    <label>Global Parent</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Contacts (Global)</relationshipLabel>
+    <relationshipName>Global_Parent_Contacts</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

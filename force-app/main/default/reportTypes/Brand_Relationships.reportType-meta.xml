@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <baseObject>Brand_Relationship__c</baseObject>
+    <category>other</category>
+    <deployed>true</deployed>
+    <description>Brand relationships with their accounts</description>
+    <label>Brand Relationships</label>
+    <sections>
+        <columns>
+            <checkedByDefault>true</checkedByDefault>
+            <field>Name</field>
+            <table>Brand_Relationship__c</table>
+        </columns>
+        <columns>
+            <checkedByDefault>true</checkedByDefault>
+            <field>Brand__c</field>
+            <table>Brand_Relationship__c</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Brand_Owner__c</field>
+            <table>Brand_Relationship__c</table>
+        </columns>
+        <columns>
+            <checkedByDefault>true</checkedByDefault>
+            <field>Open_Pipeline__c</field>
+            <table>Brand_Relationship__c</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Account__c</field>
+            <table>Brand_Relationship__c</table>
+        </columns>
+        <masterLabel>Brand Relationships</masterLabel>
+    </sections>
+</ReportType>

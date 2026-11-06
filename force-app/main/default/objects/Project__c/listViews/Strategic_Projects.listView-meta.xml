@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Strategic_Projects</fullName>
+    <columns>NAME</columns>
+    <columns>Vertical__c</columns>
+    <columns>Estimated_Construction_Value__c</columns>
+    <columns>Project_Phase__c</columns>
+    <columns>Brands_Engaged__c</columns>
+    <columns>BOD_Secured__c</columns>
+    <columns>Rep_Conflict__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Strategic_Project__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Strategic Projects</label>
+</ListView>

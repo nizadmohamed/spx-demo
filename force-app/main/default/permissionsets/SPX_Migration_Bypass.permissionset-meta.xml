@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Bypass custom permissions. Assign ONLY to the Migration User, never to sales users.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>SPX Migration Bypass</label>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>SPX_Bypass_Validation_Rules</name>
+    </customPermissions>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>SPX_Bypass_Automation</name>
+    </customPermissions>
+</PermissionSet>

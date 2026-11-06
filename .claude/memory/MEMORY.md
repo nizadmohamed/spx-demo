@@ -1,0 +1,2 @@
+- [SPX demo resume context](spx-demo-resume-context.md) — state of the SPX HVAC demo, open items, pointer to docs\SPX_Session_Resume_Context.md
+- [Confirm before org changes](feedback-confirm-org-changes.md) — always ask the user before any change to the spx-demo org
